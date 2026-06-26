@@ -1,0 +1,652 @@
+﻿ACKNOWLEDGEMENT
+We would like to express our sincere gratitude to our supervisor, LT Naivasha, for the guidance, support, and valuable advice that were provided throughout the development and completion of this project. We also extended our appreciation to our lecturers, especially NTA Level 6 and SKT Staff, for their encouragement, assistance, and academic support during the project period.
+Special thanks went to our fellow students and group members for their cooperation, teamwork, and contribution of ideas during the development of the Visitor Management System. We were also grateful to our families and friends for their moral support, patience, encouragement, and motivation throughout the study period.
+Finally, we thanked everyone who contributed directly or indirectly to the successful completion of this project.
+ABSTRACT
+The rapid advancement of information technology significantly transformed the way organizations managed their daily operations. Traditional manual systems, such as paper-based visitor logbooks, had been widely used for recording visitor information in many institutions. However, these manual methods were often inefficient, time-consuming, prone to human errors, and insecure because records could easily be lost, damaged, or accessed by unauthorized individuals. In response to these challenges, organizations increasingly adopted computerized systems to improve efficiency, accuracy, and security. This project focused on the design and development of a Visitor Management System (VMS) that automated visitor registration, monitoring, and record management within an organization.
+The developed Visitor Management System provided an electronic platform that enabled visitors to be registered digitally upon arrival. The system captured essential visitor details such as name, contact information, purpose of visit, person to be visited, and automatically recorded entry and exit times. Administrators were able to manage visitor records, monitor visitor movement within the premises, and generate comprehensive reports for decision-making and security purposes. By replacing the traditional paper-based logbooks, the system minimized data redundancy, reduced errors associated with manual record keeping, and improved data accuracy and consistency.
+The VMS was designed to enhance organizational security by providing better control and traceability of visitors. Authorized personnel were able to track individuals currently within the premises, review historical visitor records, and identify unusual patterns that could pose security risks. In addition, the system supported faster visitor processing, reduced congestion at entry points, and improved the overall visitor experience. The use of a centralized database ensured that visitor information was stored securely and could be retrieved efficiently whenever needed.
+The implementation of this Visitor Management System was intended for use at MSICT and DFHQ, where visitor flow management and security were critical. In these environments, accurate visitor tracking was essential for maintaining safety, accountability, and operational efficiency. The system assisted security officers and administrators at MSICT and DFHQ in generating timely reports and enforcing access control policies more efficiently than manual methods.
+Overall, the implementation of the Visitor Management System demonstrated significant improvements in visitor handling, data management, and organizational security. The system provided a reliable, efficient, and secure solution for managing visitor information, making it suitable for institutions that required strict access control and accurate record keeping. This project highlighted the importance of adopting information technology solutions to modernize organizational processes and improve service delivery.
+CHAPTER ONE
+INTRODUCTION
+1.0 Introduction
+This chapter provided a general overview of the project. It explained the background information, problem statement, main objective, specific objectives, scope of the study, and significance of the project.
+1.1 Background Information
+Traditionally, visitor records were maintained using manual methods such as paper logbooks. Although this approach was simple and inexpensive, it was often inefficient, time-consuming, and prone to errors such as incomplete records, illegible handwriting, data loss, and unauthorized access to sensitive information. Manual systems also made it difficult to retrieve past visitor information quickly, especially when records were required for security checks or administrative reporting.
+With the advancement of Information and Communication Technology (ICT), organizations increasingly adopted computerized systems to improve efficiency, accuracy, and security. Computerized Visitor Management Systems (VMS) automated visitor registration, entry and exit tracking, and report generation, enabling secure storage and quick retrieval of visitor data.
+Despite the availability of ICT infrastructure, MSICT and DFHQ relied heavily on manual visitor registration systems. Visitor information was recorded in paper logbooks, which were difficult to manage, store, and retrieve efficiently. There was no centralized digital system for monitoring entry and exit times or generating accurate visitor reports.
+Therefore, a computerized Visitor Management System was developed and implemented to improve visitor control, data accuracy, and overall institutional security.
+1.2 Problem Statement
+The manual visitor management system resulted in long waiting times for visitors, misplaced records, difficulty in retrieving visitor information, and poor data security. To address these challenges, a computerized Visitor Management System was developed and implemented.
+1.3 Main Objective
+The main objective of this project was to develop and implement a computerized Visitor Management System.
+1.4 Specific Objectives
+i. To register visitor details electronically.
+ii. To store visitor information securely.
+iii. To generate visitor reports for administrative and security purposes.
+1.5 Scope of the Study
+This study focused on the development and implementation of a Visitor Management System within an organizational setting.
+The system supported receptionists and security personnel in registering visitors, recording visit details, monitoring visitor entry and exit, and checking visitor history.
+The system also generated reports for administrative and security management purposes. However, the system was not integrated with external organizations.
+1.6 Significance of the Project
+The Visitor Management System improved organizational security by maintaining accurate and easily accessible visitor records. It enabled authorized personnel to track visitor history efficiently.
+The system enhanced operational efficiency by reducing the time spent on manual registration and minimizing errors and data loss. It also supported informed decision-making by providing reports that assisted management in planning security measures.
+CHAPTER TWO
+LITERATURE REVIEW
+2.0 Introduction
+This chapter reviews literature related to Visitor Management Systems (VMS) and other information systems used for visitor registration, monitoring, and security management. The review provides theoretical, conceptual, and empirical knowledge that guided the design and implementation of the proposed Visitor Management System.
+2.1 Definitions of Key Terms
+2.1.1 Visitor
+A visitor is any person who enters an organization, institution, or facility for purposes other than being a permanent employee. Visitors may include customers, suppliers, contractors, guests, and service providers.
+2.1.2 Visitor Management System (VMS)
+A Visitor Management System (VMS) is a computerized information system used to register, monitor, track, and manage visitors entering and leaving organizational premises. The system improves security, accountability, and record management.
+2.1.3 Security
+Security refers to the measures and procedures established to protect people, property, information, and organizational resources from unauthorized access, misuse, damage, or threats.
+2.1.4 Access Control
+Access control is the process of regulating who is allowed to enter specific locations or access particular resources within an organization. In this project, access control was supported through visitor registration and monitoring mechanisms.
+2.1.5 Database
+A database is an organized collection of data stored electronically for easy access, management, updating, and retrieval.
+2.1.6 Manual Visitor Management System
+A manual visitor management system refers to a traditional approach where visitor information is recorded using paper-based tools such as logbooks, registers, and forms.
+2.2 Theoretical Literature Review
+2.2.1 Information Systems Theory
+Information Systems Theory explains how technology is used to collect, process, store, and distribute information to support organizational operations and decision-making. According to Laudon and Laudon (2019), information systems improve organizational efficiency by providing accurate and timely information.
+In this study, the theory provided a foundation for understanding how visitor information could be collected electronically, stored securely, and retrieved efficiently to support visitor management activities.
+2.2.2 Access Control Theory
+Access Control Theory focuses on regulating entry into physical locations and access to information resources. According to Sandhu et al. (1996), access control mechanisms ensure that only authorized individuals gain access to protected resources.
+The theory was relevant to this project because the Visitor Management System was designed to regulate visitor access, record visitor activities, and improve organizational security through controlled entry procedures.
+2.3 Conceptual Literature Review
+The conceptual framework of the Visitor Management System illustrated the relationship between inputs, processes, and outputs. The inputs included visitor details such as name, ID number, phone number, purpose of visit, and host employee. The processes involved capturing, verifying, and storing visitor information, tracking entry and exit times, generating visitor passes, and managing access control. The outputs consisted of visitor logs, reports, security alerts, and accurate records of visitor movements.
+The interaction between users and the system played a significant role in ensuring effective system design and successful implementation of the Visitor Management System. The framework demonstrated how input data were processed and transformed into useful information that supported security management, decision-making, and efficient visitor monitoring within the organization.
+2.4 Empirical Literature Review
+Several studies have demonstrated the effectiveness of computerized Visitor Management Systems in improving security and operational efficiency.
+According to ATT Systems Group (2025), automated visitor management systems improve visitor identification, reduce unauthorized access, and provide accurate visitor tracking capabilities.
+Research conducted by the International Journal of Modern Research in Science, Engineering and Technology (IJMRSET, 2025) indicated that organizations using digital visitor management systems experienced improved efficiency, reduced waiting times, and better record management compared to organizations relying on manual systems.
+Aastro Tech (2024) reported that computerized visitor management systems enhanced accountability and enabled organizations to generate reports quickly and accurately.
+In Tanzania, the adoption of computerized visitor management systems has increased as organizations seek to improve security and operational efficiency. The Tanzania ICT Authority (2023) reported that digital transformation initiatives have encouraged institutions to adopt computerized information systems to improve service delivery and security management.
+2.5 Challenges of the Existing System
+The existing manual visitor management system experienced several challenges.
+2.5.1 Inaccurate Records
+Manual records often contained incomplete information, spelling mistakes, and illegible handwriting, reducing data accuracy.
+2.5.2 Difficult Record Retrieval
+Searching for historical visitor records required reviewing multiple logbook pages, making retrieval slow and inefficient.
+2.5.3 Poor Data Security
+Paper-based records were vulnerable to unauthorized access, physical damage, and loss.
+2.5.4 Time Consumption
+The manual registration process consumed significant time, especially during periods with many visitors.
+2.5.5 Lack of Reporting Capabilities
+The existing system did not support automatic report generation, making visitor analysis and decision-making difficult.
+2.6 Summary
+The literature reviewed demonstrated that computerized Visitor Management Systems provide significant advantages over manual visitor registration methods. Previous studies showed that automated systems improve security, efficiency, record management, and reporting capabilities. The reviewed theories and empirical studies provided a strong foundation for the design and implementation of the Visitor Management System developed in this project.
+CHAPTER THREE
+METHODOLOGY
+3.0 Introduction
+This chapter describes the methodology that was used during the development and implementation of the Visitor Management System. It explains the research design, target population, sampling techniques, data collection methods, system development methodology, ethical considerations, budget, and project schedule. The methodology ensured that the project objectives were achieved systematically and effectively.
+3.1 Methodology of the Study
+This study adopted a descriptive and exploratory research design to examine the existing visitor registration procedures and identify suitable technological solutions for automating visitor management. A mixed-methods approach was used, combining both qualitative and quantitative techniques.
+Qualitative data were collected through interviews and direct observation, while quantitative data were collected through questionnaires and analysis of visitor records. This approach enabled comprehensive understanding of the challenges associated with the existing manual visitor management system.
+3.1.0 Target Population
+The target population consisted of individuals who were directly involved in visitor management activities at MSICT and DFHQ. These included security officers, administrative staff, ICT personnel, and visitors.
+These groups were selected because they possessed relevant information regarding visitor registration procedures, security practices, and system requirements.
+3.1.1 Sample Size and Sampling Technique
+A sample size of 15 respondents was selected for the study. This included 5 security officers, 2 administrative staff, 1 ICT personnel, and 7 visitors from MSICT and DFHQ.
+The study employed purposive sampling to select security officers, administrative staff, and ICT personnel due to their direct involvement and knowledge of the visitor management process. Simple random sampling was used to select visitors in order to ensure fairness and reduce selection bias.
+3.1.2 Sample Type
+The study considered both primary and secondary samples. Primary samples consisted of respondents who provided first-hand information through interviews, questionnaires, and observations. Secondary samples included existing institutional records, visitor logbooks, and policy documents related to security and visitor management.
+3.1.3 Data Collection Instruments
+Data for this study were collected using multiple instruments to enhance reliability and validity. Questionnaires were used to collect quantitative data from visitors and staff regarding waiting times, frequency of errors, and the overall efficiency of the existing system. Interview guides were used to conduct semi-structured interviews with security officers, administrators, and ICT personnel to gather qualitative insights on challenges and system requirements. Observation checklists were used to observe the existing visitor registration process and identify inefficiencies and delays. In addition, document reviews were conducted on existing visitor logbooks and institutional records to support data triangulation.
+3.2 System Development Methodology
+The system was developed using the Waterfall Model. This model was chosen because it was simple, well-structured, and suitable for small-scale systems. The stages included system planning, requirement analysis, system design, implementation, testing, deployment, and maintenance.
+The main advantages of the Waterfall Model were that it allowed clear documentation at each stage, which made it easier to track progress and maintain the system. It also provided well-defined phases and milestones, enabling developers and users to understand what was expected at every stage of development. For small projects such as the Visitor Management System, where requirements were stable and were not expected to change frequently, the Waterfall Model reduced complexity and development risks.
+In addition, the Waterfall Model was easy to plan and estimate in terms of time and resources compared to iterative models. It minimized confusion by ensuring that each phase was completed before moving to the next, which helped maintain system quality. Therefore, the Waterfall Model was considered more appropriate than other models for the successful development of this system.
+3.2.0 System Planning
+System planning was the process of preparing and organizing all resources, goals, and activities required for the development of the Visitor Management System. It was categorized into system inputs and system outputs.
+System Inputs
+Table 3.1: System Inputs
+S/No
+Input
+Explanations
+1
+Problem Statement
+Manual visitor records
+2
+User Needs
+Security staff, administrators, and visitors
+3
+Resources
+Hardware (computers and printers), Software (PHP, MySQL, and XAMPP), Human Resources (Developer and Security Staff)
+4
+Time and Budget
+Project duration was 3 months and the estimated cost was TZS 1,500,000/=
+5
+Existing System Information
+Paper-based logbooks
+The inputs were analyzed to identify the requirements needed for the successful development and implementation of the Visitor Management System.
+System Outputs
+Table 3.2: System Outputs
+S/No
+Output
+Explanations
+1
+Project Proposal
+A computerized visitor registration system was proposed to improve security, provide accurate visitor records, and reduce waiting time.
+2
+Objectives
+The objectives were to reduce visitor waiting time, store visitor records efficiently, and generate daily, weekly, and monthly reports.
+3
+Scope
+The system covered visitor registration, visitor check-in and check-out, host notification, and user login/logout functionalities.
+4
+Work Plan and Schedule
+Requirement analysis (2 weeks), system design (3 weeks), coding (5 weeks), testing (1 week), and deployment (1 week).
+5
+Budget Plan
+Computer: TZS 250,000/=, Printer: TZS 200,000/=, Development Tools: TZS 200,000/=, Development (Coding): TZS 500,000/=, Testing: TZS 150,000/=, Maintenance: TZS 200,000/=.
+The outputs provided a clear roadmap that guided the development process and ensured that the project objectives were achieved within the planned budget and schedule.
+3.2.1 System Requirements
+System requirements were specifications that defined how the system functioned, performed, and operated. They included functional requirements, non-functional requirements, and technical requirements.
+i. Functional Requirements
+Functional requirements described what the Visitor Management System was required to do. These included user login, visitor registration, visitor check-in and check-out, identity verification, issuing visitor passes, generating reports, and managing user access roles.
+ii. Non-Functional Requirements
+Non-functional requirements described how the Visitor Management System was expected to perform. They included system security, reliability, usability, performance, availability, and scalability to ensure that the system operated efficiently, safely, and smoothly for all users.
+iii. Technical Requirements
+Technical requirements described the hardware, software, and technical resources that were needed to run the Visitor Management System. These included computers or tablets for reception and security staff, a reliable power supply, network connectivity, a database server, a web-based application platform, supported operating systems, and basic security tools such as authentication mechanisms and data backup facilities.
+3.3 Ethical Considerations
+The study observed the following ethical principles:
+i. Informed Consent: Participants were fully informed about the purpose of the research before taking part.
+ii. Confidentiality: Personal information collected was kept confidential and was used solely for the purposes of system development.
+iii. Data Protection: The system ensured secure storage of information through restricted access and password protection.
+iv. Voluntary Participation: Participation was completely voluntary, and no coercion was involved.
+3.4 Budget
+The budget outlined the estimated costs that were required for the development and implementation of the system. The costs included hardware, system development, testing, deployment, and maintenance. Free and open-source software tools were utilized to reduce the overall project expenses.
+ Project Budget Breakdown
+Item
+Description
+Cost (TZS)
+Hardware
+Computer accessories and printer
+400,000
+Software
+Development tools
+200,000
+Development
+System design and coding
+400,000
+Testing
+Unit Testing, Integration Testing, System Testing, 
+and User Acceptance Testing (UAT)
+150,000
+Deployment
+Uploading files to the server and importing the database
+250,000
+Maintenance
+System maintenance
+100,000
+Total
+1,500,000
+Table 3: Project Budget Breakdown
+3.5 Time Schedule
+The time schedule showed the estimated duration for each activity that was involved in the development of the Visitor Management System. The project was planned and completed within a specified period to ensure effective implementation. Each activity was allocated sufficient time to ensure quality system development and successful project completion.
+Figure 3.3: Project Gantt Chart (12 Weeks)
+CHAPTER FOUR
+DATA COLLECTION
+4.0 Introduction
+This chapter presents the data collection process that was conducted during the development of the Visitor Management System (VMS). It describes the respondents who participated in the study, the instruments used to collect data, and the procedures followed during data collection.
+4.1 Data Collection Process
+Data were collected from MSICT and DFHQ personnel who were directly involved in visitor management activities. The data collection process was conducted to identify challenges associated with the existing manual visitor registration system and to gather requirements for the proposed computerized Visitor Management System.
+4.2 Respondent Distribution
+A total of fifteen (15) respondents participated in the study. These included security officers, administrative staff, ICT personnel, and visitors.
+Category
+Number of Respondents
+Security Officers
+5
+Administrative Staff
+2
+ICT Personnel
+1
+Visitors
+7
+Total
+15
+4.3 Data Collection Instruments
+The following instruments were used during data collection:
+4.3.1 Questionnaires
+Questionnaires were distributed to visitors and staff members. The questionnaires collected information regarding visitor registration procedures, waiting time, data accuracy, and challenges experienced with the manual system.
+4.3.2 Interviews
+Interviews were conducted with security officers, administrators, and ICT personnel. The interviews helped to obtain detailed information about the limitations of the existing visitor management process and the requirements of the proposed system.
+4.3.3 Observation
+Direct observation was conducted at visitor entry points. The observation focused on visitor registration procedures, record management practices, and security measures used during visitor processing.
+4.3.4 Document Review
+Existing visitor logbooks and institutional records were reviewed to understand how visitor information was recorded, stored, and retrieved.
+4.4 Findings from Data Collection
+The collected data revealed several challenges in the existing manual visitor management system.
+4.4.1 Delays During Visitor Registration
+Most respondents indicated that manual registration consumed considerable time, especially during peak hours when many visitors arrived simultaneously.
+4.4.2 Difficulty in Retrieving Records
+Security officers reported difficulties in locating historical visitor records because information was stored in paper logbooks.
+4.4.3 Data Inaccuracy
+The study found that handwritten records frequently contained incomplete information, spelling mistakes, and illegible entries.
+4.4.4 Poor Security of Records
+The manual records were vulnerable to loss, physical damage, and unauthorized access.
+4.5 Summary
+The data collected confirmed that the existing manual visitor management system had several operational and security challenges. The findings justified the development of a computerized Visitor Management System capable of improving efficiency, accuracy, and security in visitor management.
+CHAPTER FIVE
+DATA ANALYSIS
+5.0 Introduction
+This chapter presented the analysis of data collected from respondents during the study. The analysis focused on identifying the weaknesses of the existing manual visitor management system and determining the requirements for the proposed computerized Visitor Management System.
+5.1 Analysis of Questionnaire Data
+Questionnaires were administered to visitors and staff members. The responses obtained were analyzed and summarized to identify the major challenges associated with the manual visitor registration process.
+5.1.1 Visitor Registration Delays
+Most respondents indicated that the manual registration process consumed a significant amount of time. Visitors were required to write their information manually in logbooks before being granted access to the premises.
+Table 5.1: Responses on visitor registration delays
+Response
+Frequency
+Percentage
+Strongly Agree
+8
+53%
+Agree
+5
+33%
+Neutral
+1
+7%
+Disagree
+1
+7%
+Total
+15
+100%
+The findings showed that the majority of respondents agreed that the manual registration process caused delays and inconveniences.
+5.1.2 Difficulty in Retrieving Visitor Records
+Respondents reported that retrieving visitor information from paper logbooks was difficult and time-consuming. Security officers were required to search through several pages before obtaining the required information.
+Table 5.2: Responses on retrieval of visitor records
+Response
+Frequency
+Percentage
+Strongly Agree
+7
+47%
+Agree
+6
+40%
+Neutral
+1
+7%
+Disagree
+1
+7%
+Total
+15
+100%
+The results indicated that record retrieval was one of the major challenges of the existing system.
+5.1.3 Data Security Challenges
+The study revealed that paper-based records were vulnerable to loss, damage, and unauthorized access. Several respondents indicated that important visitor records could easily be misplaced.
+Table 5.3: Responses on data security challenges
+Response
+Frequency
+Percentage
+Strongly Agree
+9
+60%
+Agree
+4
+27%
+Neutral
+1
+7%
+Disagree
+1
+7%
+Total
+15
+100%
+The findings demonstrated that the manual system lacked adequate security controls.
+5.2 Analysis of Interview Data
+Interviews conducted with security officers, administrators, and ICT personnel provided additional information regarding the shortcomings of the existing system.
+The respondents stated that:
+i. Visitor records were difficult to maintain.
+ii. Historical records were not easily accessible.
+iii. Report generation required considerable effort.
+iv. Monitoring visitor movements was difficult.
+v. Manual records were prone to human errors.
+5.3 Analysis of Observation Data
+The observation process revealed several weaknesses in the existing visitor registration procedures.
+The researchers observed that:
+i. Visitors spent considerable time waiting for registration.
+ii. Some visitor information was incomplete.
+iii. Handwriting was often difficult to read.
+iv. Logbooks occupied significant storage space.
+v. Visitor tracking was inefficient.
+5.4 System Requirement Analysis
+Based on the findings obtained during data collection, the following requirements were identified.
+5.4.1 Functional Requirements
+The proposed system was required to:
+i. Register visitors electronically.
+ii. Record visitor entry and exit times.
+iii. Store visitor information securely.
+iv. Generate visitor reports.
+v. Manage user accounts and permissions.
+5.4.2 Non-Functional Requirements
+The proposed system was required to:
+i. Provide high security.
+ii. Ensure reliability.
+iii. Support fast processing.
+iv. Maintain data integrity.
+v. Provide a user-friendly interface.
+5.5 Summary
+The analysis demonstrated that the existing manual visitor management system experienced several operational and security challenges. The findings justified the development of a computerized Visitor Management System capable of improving efficiency, accuracy, security, and record management.
+CHAPTER SIX
+DESIGN AND IMPLEMENTATION
+6.0 Introduction
+This chapter presents the design and implementation of the Visitor Management System (VMS). It describes the system architecture, database design, system interfaces, implementation tools, and functionality of the developed system. The chapter also explains how the system was implemented to meet the identified requirements and objectives.
+6.1 System Design
+System design involved transforming the requirements gathered during the analysis phase into a structured system that could be implemented effectively. The design process focused on database design, user interface design, process flow design, and system architecture.
+The purpose of the design was to ensure that the developed system was user-friendly, secure, efficient, and capable of managing visitor information accurately.
+6.2 System Architecture
+The Visitor Management System was developed using a three-tier architecture consisting of the presentation layer, application layer, and database layer.
+6.2.1 Presentation Layer
+The presentation layer provided an interface through which users interacted with the system. It was developed using HTML, CSS, and JavaScript.
+6.2.2 Application Layer
+The application layer contained the business logic of the system. PHP was used to process user requests, validate data, and communicate with the database.
+6.2.3 Database Layer
+The database layer was developed using MySQL. It stored visitor records, user information, reports, and other system data.
+Figure 6.1: System Architecture Diagram
+(Insert System Architecture Diagram Here)
+6.3 Database Design
+The database was designed to ensure secure storage, retrieval, and management of visitor information. The database consisted of several tables that supported system operations.
+6.3.1 Users Table
+The Users table stored information about system users.
+Table 6.1: Users Table Structure
+Field Name
+Data Type
+Description
+user_id
+INT
+Primary Key
+full_name
+VARCHAR(100)
+User Full Name
+username
+VARCHAR(50)
+Login Username
+password
+VARCHAR(255)
+User Password
+role
+VARCHAR(50)
+User Role
+6.3.2 Visitors Table
+The Visitors table stored information about visitors.
+Table 6.2: Visitors Table Structure
+Field Name
+Data Type
+Description
+visitor_id
+INT
+Primary Key
+full_name
+VARCHAR(100)
+Visitor Name
+phone_number
+VARCHAR(20)
+Phone Number
+national_id
+VARCHAR(50)
+Identification Number
+purpose
+TEXT
+Purpose of Visit
+host_employee
+VARCHAR(100)
+Person to Visit
+check_in
+DATETIME
+Entry Time
+check_out
+DATETIME
+Exit Time
+6.4 System Flow Design
+The developed system followed the process below:
+User Login
+Visitor Registration
+Data Validation
+Visitor Check-In
+Visitor Monitoring
+Visitor Check-Out
+Report Generation
+The process ensured that visitor information was captured, stored, and managed efficiently.
+Figure 6.2: System Flow Diagram
+(Insert System Flow Diagram Here)
+6.5 System Implementation
+The Visitor Management System was implemented using various technologies and development tools.
+6.5.1 Software Technologies Used
+The following technologies were used during system development:
+Table 6.3: Software Technologies
+Technology
+Purpose
+HTML
+Structure of web pages
+CSS
+User interface styling
+JavaScript
+Client-side validation
+PHP
+Server-side programming
+MySQL
+Database management
+6.5.2 Development Tools
+The following tools were used during system development:
+Table 6.4: Development Tools
+Tool
+Purpose
+XAMPP
+Local server environment
+Visual Studio Code
+Source code editing
+MySQL
+Database server
+Google Chrome
+System testing
+6.6 User Interface Design
+The system consisted of several interfaces that enabled users to perform various operations.
+6.6.1 Login Page
+The login page allowed authorized users to access the system using their username and password.
+Functions performed:
+User authentication
+Access control
+Session management
+Figure 6.3: Login Page
+(Insert Login Page Screenshot Here)
+6.6.2 Dashboard
+The dashboard displayed summary information and provided navigation to different system modules.
+Functions performed:
+View visitor statistics
+Access visitor records
+Generate reports
+Manage users
+Figure 6.4: Dashboard
+(Insert Dashboard Screenshot Here)
+6.6.3 Visitor Registration Form
+The visitor registration form was used to capture visitor information.
+Functions performed:
+Register visitors
+Record visit details
+Store visitor information
+Figure 6.5: Visitor Registration Form
+(Insert Visitor Registration Screenshot Here)
+6.6.4 Visitor Records Page
+The visitor records page displayed all registered visitors.
+Functions performed:
+Search visitor records
+Update records
+Delete records
+View visitor history
+Figure 6.6: Visitor Records Page
+(Insert Visitor Records Screenshot Here)
+6.6.5 Reports Page
+The reports page enabled administrators to generate visitor reports.
+Functions performed:
+Daily reports
+Weekly reports
+Monthly reports
+Visitor activity reports
+Figure 6.7: Reports Page
+(Insert Reports Screenshot Here)
+6.7 System Testing
+System testing was conducted to verify that all functionalities operated correctly and met user requirements.
+Table 6.5: System Testing Results
+Test Case
+Expected Result
+Actual Result
+Status
+User Login
+Successful Login
+Successful Login
+Pass
+Visitor Registration
+Record Saved
+Record Saved
+Pass
+Search Visitor
+Record Displayed
+Record Displayed
+Pass
+Report Generation
+Report Generated
+Report Generated
+Pass
+Visitor Check-Out
+Exit Recorded
+Exit Recorded
+Pass
+The testing results indicated that the system performed as expected and all major functions operated successfully.
+6.8 Security Features Implemented
+The system incorporated several security features to protect visitor information.
+6.8.1 User Authentication
+Only authorized users were allowed to access the system.
+6.8.2 Password Protection
+Passwords were secured to prevent unauthorized access.
+6.8.3 Data Validation
+Input validation was implemented to prevent incorrect or incomplete data entry.
+6.8.4 Session Management
+User sessions were controlled to improve system security.
+6.9 Summary
+This chapter presented the design and implementation of the Visitor Management System. The chapter described the system architecture, database design, implementation technologies, user interfaces, testing procedures, and security mechanisms. The developed system successfully met the project requirements and provided an efficient solution for managing visitor information within the organization.
+CHAPTER SEVEN
+DISCUSSION OF RESULTS
+7.0 Introduction
+This chapter discussed the results obtained after the implementation and testing of the Visitor Management System (VMS). The discussion focused on evaluating the performance of the system, assessing the achievement of project objectives, and comparing the developed system with the existing manual visitor management system.
+7.1 Achievement of Project Objectives
+The study aimed at developing a computerized Visitor Management System to improve visitor registration, record management, and security within the organization. The results indicated that all project objectives were successfully achieved.
+7.1.1 Registration of Visitor Details
+The system successfully registered visitor information electronically. Security officers were able to capture visitor details such as full name, phone number, identification number, purpose of visit, and host employee. This reduced the use of paper-based logbooks and improved data accuracy.
+7.1.2 Storage of Visitor Information
+The developed system stored visitor information in a centralized database. Unlike the manual system, records could be retrieved quickly and efficiently whenever required. The database also minimized data redundancy and improved record management.
+7.1.3 Generation of Visitor Reports
+The reporting module successfully generated visitor reports based on the stored data. Administrators were able to generate daily, weekly, and monthly reports to support decision-making and security monitoring.
+7.2 Comparison Between the Existing and Proposed System
+The implementation of the Visitor Management System demonstrated significant improvements compared to the manual system.
+Table 7.1: Comparison between manual and computerized systems.
+Feature
+Manual System
+Proposed System
+Visitor Registration
+Paper logbooks
+Electronic registration
+Record Retrieval
+Slow and difficult
+Fast and efficient
+Data Storage
+Physical records
+Centralized database
+Report Generation
+Manual preparation
+Automated reports
+Data Security
+Low
+High
+Visitor Tracking
+Limited
+Effective
+Data Accuracy
+Prone to errors
+Improved accuracy
+The results showed that the computerized system outperformed the manual system in terms of efficiency, security, and usability.
+7.3 System Performance Evaluation
+The system performed effectively during testing and implementation. The following observations were made:
+i. Visitor registration was completed within a shorter period compared to the manual system.
+ii. Data retrieval became significantly faster.
+iii. User authentication improved access control.
+iv. Visitor records were maintained accurately.
+v. Reports were generated automatically with minimal effort.
+The system met the functional and non-functional requirements identified during the requirement analysis stage.
+7.4 Benefits Realized After Implementation
+The implementation of the Visitor Management System provided several benefits.
+7.4.1 Improved Security
+The system enhanced security by recording visitor entry and exit times accurately. It also maintained historical visitor records for future reference.
+7.4.2 Increased Efficiency
+The registration process became faster and more organized. Security officers spent less time recording visitor information and searching for records.
+7.4.3 Improved Data Accuracy
+Electronic data entry reduced errors associated with illegible handwriting and incomplete records.
+7.4.4 Better Decision-Making
+The availability of visitor reports enabled administrators to make informed decisions regarding visitor management and security planning.
+7.5 Challenges Encountered During Implementation
+Several challenges were encountered during system development and implementation.
+7.5.1 Limited Resources
+The project was developed within limited financial and technical resources, which restricted some advanced features.
+7.5.2 Power Interruptions
+Occasional power interruptions affected development and testing activities.
+7.5.3 User Adaptation
+Some users required additional training to become familiar with the computerized system.
+7.5.4 Data Collection Challenges
+Obtaining complete information from some respondents proved difficult during data collection.
+7.6 Summary
+The results demonstrated that the Visitor Management System successfully addressed the challenges associated with the existing manual visitor management system. The system improved efficiency, security, data accuracy, and report generation capabilities. Overall, the implementation of the system achieved the intended project objectives and provided a reliable solution for managing visitor information within the organization.
+CHAPTER EIGHT
+CONCLUSIONS AND RECOMMENDATIONS
+8.0 Introduction
+This chapter presents the conclusions and recommendations derived from the findings of the study. The conclusions were based on the results obtained during the design, development, implementation, and testing of the Visitor Management System (VMS). Recommendations were also provided to improve the effectiveness and sustainability of the system in the future.
+8.1 Conclusions
+The study successfully developed and implemented a computerized Visitor Management System to address the challenges associated with the existing manual visitor registration process at MSICT and DFHQ.
+The findings revealed that the manual visitor management system experienced several challenges, including delays during visitor registration, difficulties in retrieving records, poor data security, and lack of automated reporting mechanisms. These challenges negatively affected operational efficiency and security management.
+The developed Visitor Management System successfully addressed these challenges by providing an electronic platform for visitor registration, visitor tracking, data storage, and report generation. The system improved the speed of visitor processing, enhanced data accuracy, and strengthened organizational security through proper monitoring of visitor activities.
+The implementation of the system reduced dependence on paper-based records and improved the management of visitor information. Security officers and administrators were able to access visitor records quickly and generate reports efficiently whenever required.
+The study also demonstrated that the use of information technology can significantly improve organizational operations by increasing efficiency, accountability, and security. Therefore, the Visitor Management System provided a reliable and effective solution for managing visitor information within the organization.
+8.2 Recommendations
+Based on the findings and results of the study, the following recommendations were made:
+8.2.1 Full System Deployment
+The organization should fully deploy the Visitor Management System across all departments and visitor entry points to maximize its benefits and improve overall visitor management.
+8.2.2 User Training
+Security officers, receptionists, and administrators should receive adequate training on how to use the system effectively. Proper training will improve system utilization and reduce operational errors.
+8.2.3 Regular System Maintenance
+Regular maintenance activities should be conducted to ensure that the system continues to operate efficiently. Maintenance should include software updates, bug fixing, and performance monitoring.
+8.2.4 Data Backup Procedures
+The organization should establish regular database backup procedures to protect visitor information from accidental loss, corruption, or system failures.
+8.2.5 Enhanced Security Measures
+Additional security features such as two-factor authentication, biometric verification, and encrypted data transmission should be implemented to further strengthen system security.
+8.3 Areas for Further Improvement
+Future versions of the Visitor Management System may include the following enhancements:
+i. QR Code visitor passes.
+ii. Biometric authentication for visitor identification.
+iii. SMS notifications to host employees.
+iv. Email notifications for visitor appointments.
+v. Online visitor pre-registration services.
+vi. Integration with CCTV monitoring systems.
+vii. Mobile application support for visitor management.
+These improvements would further enhance efficiency, convenience, and security.
+8.4 Final Conclusion
+The Visitor Management System successfully achieved its intended objectives by automating visitor registration, improving record management, enhancing security, and generating reports efficiently. The system provided a modern, secure, and reliable solution that significantly improved visitor management operations compared to the previous manual system.
+Overall, the project demonstrated the importance of adopting information technology solutions to improve organizational performance and strengthen security management practices.
+REFERENCES
+Aastro Tech. (2024). Digital visitor management systems and organizational security. Aastro Technology Publications.
+ATT Systems Group. (2025). Automated visitor management solutions for modern organizations. ATT Systems Group Ltd.
+Ford-Martin, P. (2003). Cognitive-behavioral therapy. In E. Thackery & M. Harris (Eds.), Gale encyclopedia of mental disorders (Vol. 1, pp. 226–228). Gale.
+International Journal of Modern Research in Science, Engineering and Technology (IJMRSET). (2025). A study on automated visitor management systems. International Journal of Modern Research in Science, Engineering and Technology, 7(2), 45–52.
+Laudon, K. C., & Laudon, J. P. (2019). Management information systems: Managing the digital firm (15th ed.). Pearson Education.
+Pressman, R. S. (2014). Software engineering: A practitioner's approach (8th ed.). McGraw-Hill Education.
+Sandhu, R. S., Coyne, E. J., Feinstein, H. L., & Youman, C. E. (1996). Role-based access control models. IEEE Computer, 29(2), 38–47.
+Tanzania ICT Authority. (2023). ICT systems adoption and digital transformation in Tanzania. Government of Tanzania.
+Vogels, A. G. C., Crone, M. R., Hoekstra, F., & Reijneveld, S. A. (2009). Comparing three short questionnaires to detect psychosocial dysfunction among primary school children: A randomized method. BMC Public Health, 9, 489. https://doi.org/10.1186/1471-2458-9-489
+Western Australia School Curriculum and Standards Authority. (2017). Curriculum and assessment outline: Humanities and social sciences. http://k10outline.scsa.wa.edu.au/home/p-10-curriculum/curriculum-browser/humanities-and-social-sciences
