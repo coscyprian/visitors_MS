@@ -81,8 +81,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
     if ($matchedById) {
         // Check if visitor is still inside (not checked out)
-        $visitorStatus = $matchedById['status'] ?? '';
-        if (in_array($visitorStatus, ['Inside', 'Checked In', 'Check In'], true)) {
+        $visitorStatus = strtolower(trim($matchedById['status'] ?? ''));
+        if (in_array($visitorStatus, ['inside', 'checked in', 'check in'], true)) {
             $msg = "Mgeni " . ($matchedById['full_name'] ?? 'huyo') . " bado yuko ndani. Tafadhali mpeleke nje kabla ya kumsajili tena.";
 
             if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest') {
@@ -107,10 +107,10 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
             $phoneCheckResult = $phoneCheckStmt->get_result();
             if ($phoneCheckResult && $phoneCheckResult->num_rows > 0) {
                 $existingPhoneVisitor = $phoneCheckResult->fetch_assoc();
-                $existingStatus = $existingPhoneVisitor['status'] ?? '';
+                $existingStatus = strtolower(trim($existingPhoneVisitor['status'] ?? ''));
 
                 // Only block if the visitor with this phone is still inside
-                if (in_array($existingStatus, ['Inside', 'Checked In', 'Check In'], true)) {
+                if (in_array($existingStatus, ['inside', 'checked in', 'check in'], true)) {
                     $msg = "Namba ya simu hii inatumika na mgeni " . ($existingPhoneVisitor['full_name'] ?? 'huyo') . " ambaye bado yuko ndani. Tafadhali mpeleke nje kabla ya kumsajili tena.";
 
                     if (!empty($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) == 'xmlhttprequest') {
