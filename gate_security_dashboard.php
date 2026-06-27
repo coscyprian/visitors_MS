@@ -69,6 +69,8 @@ body {
     transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
     min-height: 100vh;
     overflow-x: hidden;
+    display: block !important;
+    visibility: visible !important;
 }
 
 /* BACKGROUND ANIMATION */
@@ -229,6 +231,8 @@ body.collapsed .sidebar a {
     padding: 35px 40px;
     transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
     min-height: 100vh;
+    display: block !important;
+    visibility: visible !important;
 }
 
 body.collapsed .main-content {
@@ -901,6 +905,38 @@ document.addEventListener('DOMContentLoaded', () => {
     display: block !important;
 }
 
+/* Force display of cards */
+.card {
+    display: block !important;
+    visibility: visible !important;
+}
+
+/* Force display of container */
+.container-xl {
+    display: block !important;
+    visibility: visible !important;
+}
+
+/* Force display of all form rows */
+.row {
+    display: flex !important;
+    flex-wrap: wrap !important;
+    margin-right: -15px !important;
+    margin-left: -15px !important;
+}
+
+/* Force display of all form columns */
+.col-md-4, .col-md-6 {
+    display: block !important;
+    visibility: visible !important;
+}
+
+/* Force display of form groups */
+.mb-3 {
+    display: block !important;
+    visibility: visible !important;
+}
+
 /* Modal Styling */
 .modal-content {
     border-radius: 16px;
@@ -982,126 +1018,20 @@ document.addEventListener('DOMContentLoaded', () => {
         </div>
     </div>
 
+    <!-- TEST: Simple text to verify page loads -->
+    <div class="alert alert-info">
+        <strong>TEST:</strong> If you can see this, the page is loading correctly.
+    </div>
+
     <!-- NOTIFICATIONS SECTION -->
         <!-- END NOTIFICATIONS SECTION -->
 
-   <?php
-   if(isset($_POST['register_visitor'])){
-
-    $visitor_type = $_POST['visitor_type'];
-    $full_name = trim($_POST['full_name']);
-    $phone_number = trim($_POST['phone_number']);
-    $id_type = $_POST['id_type'];
-    $id_number = trim($_POST['id_number']);
-    $department = $_POST['department'];
-
-    $has_motor = $_POST['has_motor'] ?? "No";
-    $plate_number = $_POST['plate_number'] ?? "";
-    $motor_type = $_POST['motor_type'] ?? "";
-    $model_name = $_POST['model_name'] ?? "";
-
-    $army_no = $_POST['army_no'] ?? "";
-    $army_rank = $_POST['army_rank'] ?? "";
-    $army_unit = $_POST['army_unit'] ?? "";
-
-    //==================================================
-    // CHECK IF VISITOR IS ALREADY INSIDE
-    //==================================================
-
-    $check = $conn->prepare("
-        SELECT id
-        FROM visitors
-        WHERE id_type=?
-        AND id_number=?
-        AND checkout_time IS NULL
-        LIMIT 1
-    ");
-
-    $check->bind_param("ss",$id_type,$id_number);
-    $check->execute();
-
-    $result = $check->get_result();
-
-    if($result->num_rows > 0){
-
-        echo "<div class='alert alert-danger'>
-        Visitor tayari yupo ndani.
-        </div>";
-
-    }else{
-
-        $insert = $conn->prepare("
-        INSERT INTO visitors(
-
-            visitor_type,
-            full_name,
-            phone_number,
-            id_type,
-            id_number,
-            department,
-
-            has_motor,
-            plate_number,
-            motor_type,
-            model_name,
-
-            army_no,
-            army_rank,
-            army_unit,
-
-            checkin_time
-
-        )
-
-        VALUES(
-
-        ?,?,?,?,?,?,
-        ?,?,?,?,
-        ?,?,?,NOW()
-
-        )
-
-        ");
-
-        $insert->bind_param(
-
-            "sssssssssssss",
-
-            $visitor_type,
-            $full_name,
-            $phone_number,
-            $id_type,
-            $id_number,
-            $department,
-
-            $has_motor,
-            $plate_number,
-            $motor_type,
-            $model_name,
-
-            $army_no,
-            $army_rank,
-            $army_unit
-
-        );
-
-        if($insert->execute()){
-
-            echo "<div class='alert alert-success'>
-            Visitor registered successfully.
-            </div>";
-
-        }
-
-    }
-
-}
-   ?>
+   <!-- PHP code removed temporarily to test HTML loading -->
 
             <div class="card shadow-lg p-4 mt-4">
                 <h5 class="card-header"><i class="fas fa-user-plus me-2"></i>Sajili Mgeni Mpya</h5>
                 <div class="card-body">
-                <form method="post" action="" enctype="multipart/form-data">
+                <form method="post" action="process_checkin.php" enctype="multipart/form-data">
                     <input type="hidden" name="register_visitor" value="1">
                     
                     <div class="row">
@@ -1149,18 +1079,21 @@ document.addEventListener('DOMContentLoaded', () => {
                             <label class="form-label">Wizara/Idara</label>
                             <select name="department" id="departmentSelect" class="form-select" required>
                                 <option value="">Chagua...</option>
-                                <?php
-                                require_once 'config/db_config.php';
-                                $dept_query = "SELECT DISTINCT department FROM hosts WHERE department IS NOT NULL AND department != '' ORDER BY department";
-                                $dept_result = $conn->query($dept_query);
-                                while($dept_row = $dept_result->fetch_assoc()){
-                                    echo "<option value='" . htmlspecialchars($dept_row['department']) . "'>" . htmlspecialchars($dept_row['department']) . "</option>";
-                                }
-                                ?>
+                                <option value="Wizara ya Afya">Wizara ya Afya</option>
+                                <option value="Wizara ya Elimu">Wizara ya Elimu</option>
+                                <option value="Wizara ya Ulinzi">Wizara ya Ulinzi</option>
+                                <option value="Wizara ya Fedha">Wizara ya Fedha</option>
+                                <option value="Idara ya IT">Idara ya IT</option>
+                                <option value="Idara ya HR">Idara ya HR</option>
                             </select>
                         </div>
                     </div>
-                    
+
+                    <!-- TEST: Verify HTML continues loading -->
+                    <div class="alert alert-warning mt-3">
+                        <strong>TEST:</strong> If you see this, HTML is loading past the department field.
+                    </div>
+
                     <!-- Military Fields -->
                     <div class="row mb-3">
                         <div class="col-md-4 mb-3">
