@@ -893,6 +893,12 @@ document.addEventListener('DOMContentLoaded', () => {
     border-radius: 12px;
     padding: 20px;
     border-left: 4px solid #f59e0b;
+    display: block !important;
+}
+
+/* Military Fields Section */
+#militaryFields {
+    display: block !important;
 }
 
 /* Modal Styling */
@@ -1093,6 +1099,131 @@ document.addEventListener('DOMContentLoaded', () => {
    ?>
 
             <div class="registration-card shadow-lg p-4 mt-4">
+                <h5><i class="fas fa-user-plus me-2"></i>Sajili Mgeni Mpya</h5>
+                
+                <form method="post" action="" enctype="multipart/form-data">
+                    <input type="hidden" name="register_visitor" value="1">
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Aina ya Mgeni</label>
+                            <select name="visitor_type" id="visitorTypeSelect" class="form-select" required>
+                                <option value="">Chagua...</option>
+                                <option value="Kiraia">Kiraia</option>
+                                <option value="Kijeshi">Kijeshi</option>
+                            </select>
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Jina Kamili</label>
+                            <input type="text" name="full_name" id="fullNameInput" class="form-control" required>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Namba ya Simu</label>
+                            <input type="text" name="phone_number" id="phoneNumberInput" class="form-control" required>
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Aina ya Kitambulisho</label>
+                            <select name="id_type" id="idTypeSelect" class="form-select" required>
+                                <option value="">Chagua...</option>
+                                <option value="NIDA">NIDA</option>
+                                <option value="Passport">Passport</option>
+                                <option value="Leseni">Leseni ya Gari</option>
+                                <option value="ID">Kitambulisho cha Kazi</option>
+                                <option value="Nyingine">Nyingine</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Namba ya Kitambulisho</label>
+                            <input type="text" name="id_number" id="idNumberInput" class="form-control" required>
+                            <small id="visitorLookupStatus" class="text-muted"></small>
+                        </div>
+                        
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Wizara/Idara</label>
+                            <select name="department" id="departmentSelect" class="form-select" required>
+                                <option value="">Chagua...</option>
+                                <?php
+                                require_once 'config/db_config.php';
+                                $dept_query = "SELECT DISTINCT department FROM hosts WHERE department IS NOT NULL AND department != '' ORDER BY department";
+                                $dept_result = $conn->query($dept_query);
+                                while($dept_row = $dept_result->fetch_assoc()){
+                                    echo "<option value='" . htmlspecialchars($dept_row['department']) . "'>" . htmlspecialchars($dept_row['department']) . "</option>";
+                                }
+                                ?>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <!-- Military Fields -->
+                    <div id="militaryFields">
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label">Namba ya Jeshi</label>
+                                <input type="text" name="army_no" id="armyNoInput" class="form-control">
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label">Cheo</label>
+                                <input type="text" name="army_rank" id="armyRankInput" class="form-control">
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label">Kikosi</label>
+                                <input type="text" name="army_unit" id="armyUnitInput" class="form-control">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Motor Vehicle Section -->
+                    <div class="mb-3">
+                        <label class="form-label">Ana Gari/Moto?</label>
+                        <div>
+                            <div class="form-check form-check-inline">
+                                <input type="radio" name="has_motor" id="hasMotorYes" value="Yes" class="form-check-input">
+                                <label class="form-check-label" for="hasMotorYes">Ndio</label>
+                            </div>
+                            <div class="form-check form-check-inline">
+                                <input type="radio" name="has_motor" id="hasMotorNo" value="No" class="form-check-input" checked>
+                                <label class="form-check-label" for="hasMotorNo">Hapana</label>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div id="vehicleFields">
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label">Aina ya Gari</label>
+                                <select name="motor_type" id="motorTypeSelect" class="form-select">
+                                    <option value="">Chagua...</option>
+                                    <option value="Kiraia">Kiraia</option>
+                                    <option value="Kijeshi">Kijeshi</option>
+                                    <option value="Moto">Moto</option>
+                                </select>
+                            </div>
+                            <div class="col-md-4 mb-3">
+                                <label class="form-label">Namba ya Gari</label>
+                                <input type="text" name="plate_number" id="plateNumberInput" class="form-control">
+                            </div>
+                            <div class="col-md-4 mb-3" id="civilianVehicleDetails">
+                                <label class="form-label">Model</label>
+                                <input type="text" name="model_name" id="modelNameInput" class="form-control">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-register w-100">
+                        <i class="fas fa-user-plus me-2"></i>Sajili Mgeni
+                    </button>
+                </form>
+            </div>
+
+            <div class="registration-card shadow-lg p-4 mt-4">
                 <h5><i class="fas fa-eye me-2"></i>Chagua nini kuonyeshwa</h5>
                 <div class="d-grid gap-2 mb-4 view-buttons">
                     <a href="?view=today" class="btn btn-outline-primary "><i class="fas fa-calendar-day me-2"></i>Wageni Waliosajiliwa Leo</a>
@@ -1121,11 +1252,13 @@ document.addEventListener('DOMContentLoaded', () => {
 const csrfToken = '941906922831871543f97340f974f079fcb7a46624c5e52768946d039cf69065';
 
 function toggleVehicleFields(show) {
-    document.getElementById('vehicleFields').style.display = show ? 'block' : 'none';
+    // Always show vehicle fields
+    document.getElementById('vehicleFields').style.display = 'block';
 }
 
 function toggleMilitaryFields(type) {
-    document.getElementById('militaryFields').style.display = (type === 'Kijeshi') ? 'block' : 'none';
+    // Always show military fields
+    document.getElementById('militaryFields').style.display = 'block';
 }
 
 function handleMotorTypeChange(type) {
