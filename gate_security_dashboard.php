@@ -1098,9 +1098,9 @@ document.addEventListener('DOMContentLoaded', () => {
 }
    ?>
 
-            <div class="registration-card shadow-lg p-4 mt-4">
-                <h5><i class="fas fa-user-plus me-2"></i>Sajili Mgeni Mpya</h5>
-                
+            <div class="card shadow-lg p-4 mt-4">
+                <h5 class="card-header"><i class="fas fa-user-plus me-2"></i>Sajili Mgeni Mpya</h5>
+                <div class="card-body">
                 <form method="post" action="" enctype="multipart/form-data">
                     <input type="hidden" name="register_visitor" value="1">
                     
@@ -1143,7 +1143,6 @@ document.addEventListener('DOMContentLoaded', () => {
                         <div class="col-md-6 mb-3">
                             <label class="form-label">Namba ya Kitambulisho</label>
                             <input type="text" name="id_number" id="idNumberInput" class="form-control" required>
-                            <small id="visitorLookupStatus" class="text-muted"></small>
                         </div>
                         
                         <div class="col-md-6 mb-3">
@@ -1163,20 +1162,18 @@ document.addEventListener('DOMContentLoaded', () => {
                     </div>
                     
                     <!-- Military Fields -->
-                    <div id="militaryFields">
-                        <div class="row">
-                            <div class="col-md-4 mb-3">
-                                <label class="form-label">Namba ya Jeshi</label>
-                                <input type="text" name="army_no" id="armyNoInput" class="form-control">
-                            </div>
-                            <div class="col-md-4 mb-3">
-                                <label class="form-label">Cheo</label>
-                                <input type="text" name="army_rank" id="armyRankInput" class="form-control">
-                            </div>
-                            <div class="col-md-4 mb-3">
-                                <label class="form-label">Kikosi</label>
-                                <input type="text" name="army_unit" id="armyUnitInput" class="form-control">
-                            </div>
+                    <div class="row mb-3">
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label">Namba ya Jeshi</label>
+                            <input type="text" name="army_no" id="armyNoInput" class="form-control">
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label">Cheo</label>
+                            <input type="text" name="army_rank" id="armyRankInput" class="form-control">
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label">Kikosi</label>
+                            <input type="text" name="army_unit" id="armyUnitInput" class="form-control">
                         </div>
                     </div>
                     
@@ -1195,36 +1192,36 @@ document.addEventListener('DOMContentLoaded', () => {
                         </div>
                     </div>
                     
-                    <div id="vehicleFields">
-                        <div class="row">
-                            <div class="col-md-4 mb-3">
-                                <label class="form-label">Aina ya Gari</label>
-                                <select name="motor_type" id="motorTypeSelect" class="form-select">
-                                    <option value="">Chagua...</option>
-                                    <option value="Kiraia">Kiraia</option>
-                                    <option value="Kijeshi">Kijeshi</option>
-                                    <option value="Moto">Moto</option>
-                                </select>
-                            </div>
-                            <div class="col-md-4 mb-3">
-                                <label class="form-label">Namba ya Gari</label>
-                                <input type="text" name="plate_number" id="plateNumberInput" class="form-control">
-                            </div>
-                            <div class="col-md-4 mb-3" id="civilianVehicleDetails">
-                                <label class="form-label">Model</label>
-                                <input type="text" name="model_name" id="modelNameInput" class="form-control">
-                            </div>
+                    <div class="row mb-3">
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label">Aina ya Gari</label>
+                            <select name="motor_type" id="motorTypeSelect" class="form-select">
+                                <option value="">Chagua...</option>
+                                <option value="Kiraia">Kiraia</option>
+                                <option value="Kijeshi">Kijeshi</option>
+                                <option value="Moto">Moto</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label">Namba ya Gari</label>
+                            <input type="text" name="plate_number" id="plateNumberInput" class="form-control">
+                        </div>
+                        <div class="col-md-4 mb-3">
+                            <label class="form-label">Model</label>
+                            <input type="text" name="model_name" id="modelNameInput" class="form-control">
                         </div>
                     </div>
                     
-                    <button type="submit" class="btn btn-register w-100">
+                    <button type="submit" class="btn btn-primary w-100">
                         <i class="fas fa-user-plus me-2"></i>Sajili Mgeni
                     </button>
                 </form>
+                </div>
             </div>
 
-            <div class="registration-card shadow-lg p-4 mt-4">
-                <h5><i class="fas fa-eye me-2"></i>Chagua nini kuonyeshwa</h5>
+            <div class="card shadow-lg p-4 mt-4">
+                <h5 class="card-header"><i class="fas fa-eye me-2"></i>Chagua nini kuonyeshwa</h5>
+                <div class="card-body">
                 <div class="d-grid gap-2 mb-4 view-buttons">
                     <a href="?view=today" class="btn btn-outline-primary "><i class="fas fa-calendar-day me-2"></i>Wageni Waliosajiliwa Leo</a>
                     <a href="?view=inside" class="btn btn-outline-success "><i class="fas fa-sign-in-alt me-2"></i>Walioko Ndani</a>
@@ -1242,8 +1239,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 <div class="inline-display">
                                             <p class="text-muted">Chagua mtazamo kuonyesha wageni.</p>
                                     </div>
-
-                    
+                </div>
         </div>
     </div>
 </div>
