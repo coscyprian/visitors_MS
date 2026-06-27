@@ -6,7 +6,6 @@
 require_once 'config/db_config.php';
 require_once 'phpqrcode/qrlib.php';
 require_once 'config/sms_config.php';
-$message = "Test message kutoka mfumo wako";
 
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;

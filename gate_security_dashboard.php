@@ -1,390 +1,610 @@
-<?php
-require_once 'config/db_config.php';
-// Session and receptionist config (for vehicle/tariff viewing passcode)
-if (session_status() === PHP_SESSION_NONE) session_start();
-require_once 'includes/role_helpers.php';
-require_once 'config/reception_config.php';
-require_once 'includes/notifications.php';
-require_once 'includes/departments.php';
 
-date_default_timezone_set('Africa/Nairobi');
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VMS PRO - Control Panel</title>
 
-$currentRole = normalizeUserRole($_SESSION['role'] ?? 'Receptionist');
-if (!in_array(normalizedRoleKey($currentRole), ['admin', 'security'], true)) {
-    include 'includes/header.php';
-    echo '<div class="container py-5"><div class="alert alert-danger">Access denied. Reception registration dashboard is only available to security and administrators.</div></div>';
-    exit();
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+<style>
+:root {
+    --sidebar-width: 280px;
+    --sidebar-collapsed: 90px;
+    --primary: #6366f1;
+    --primary-light: #818cf8;
+    --accent: #a855f7;
+    --success: #10b981;
+    --warning: #f59e0b;
+    --danger: #ef4444;
+    --bg: #f8fafc;
+    --bg-alt: #f1f5f9;
+    --sidebar-bg: #ffffff;
+    --text-main: #1e293b;
+    --text-light: #64748b;
+    --card-bg: #ffffff;
+    --glass-border: rgba(0, 0, 0, 0.05);
+    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
 }
 
-// Ensure notifications table exists
-ensureNotificationsTableExists($conn);
-ensureDepartmentsTableExists($conn);
+/* DARK MODE - PREMIUM LOOK */
+body.dark-mode {
+    --bg: #0f172a;
+    --bg-alt: #1e293b;
+    --sidebar-bg: #1e293b;
+    --text-main: #f1f5f9;
+    --text-light: #cbd5e1;
+    --card-bg: rgba(30, 41, 59, 0.8);
+    --glass-border: rgba(255, 255, 255, 0.1);
+}
 
+* {
+    scrollbar-width: thin;
+    scrollbar-color: var(--primary) transparent;
+}
 
-$message = '';
-$error = '';
-$forceViewInside = false;
-$current_user_id = (int)($_SESSION['user_id'] ?? 0);
+::-webkit-scrollbar {
+    width: 8px;
+}
 
-// Handle request to reveal vehicle/tariff details (protected by passcode)
-if (isset($_POST['vehicle_pass_submit'])) {
-    $entered = trim($_POST['vehicle_pass'] ?? '');
-    if ($entered !== '' && isset($vehicle_view_pass) && $entered === $vehicle_view_pass) {
-        $_SESSION['show_vehicle'] = true;
-        $message = 'Umefanikiwa kuona taarifa za magari.';
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--primary);
+    border-radius: 10px;
+}
+
+body {
+    font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: var(--bg);
+    color: var(--text-main);
+    transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    min-height: 100vh;
+    overflow-x: hidden;
+}
+
+/* BACKGROUND ANIMATION */
+body::before, body::after {
+    content: "";
+    position: fixed;
+    border-radius: 50%;
+    z-index: -1;
+    filter: blur(120px);
+    opacity: 0;
+    transition: opacity 0.6s ease;
+}
+
+body.dark-mode::before {
+    width: 600px;
+    height: 600px;
+    background: linear-gradient(135deg, rgba(99, 102, 241, 0.3), rgba(168, 85, 247, 0.2));
+    top: -200px;
+    right: -200px;
+    opacity: 0.5;
+    animation: float 30s ease-in-out infinite;
+}
+
+body.dark-mode::after {
+    width: 500px;
+    height: 500px;
+    background: linear-gradient(135deg, rgba(59, 130, 246, 0.2), rgba(34, 197, 94, 0.15));
+    bottom: -200px;
+    left: -200px;
+    opacity: 0.4;
+    animation: float 40s ease-in-out infinite reverse;
+}
+
+@keyframes float {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    50% { transform: translate(100px, 50px) scale(1.05); }
+}
+
+/* SIDEBAR STYLING */
+.sidebar {
+    width: var(--sidebar-width);
+    height: 100vh;
+    position: fixed;
+    background: var(--sidebar-bg);
+    backdrop-filter: blur(20px);
+    border-right: 1px solid var(--glass-border);
+    padding: 25px 18px;
+    transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 1000;
+    overflow-y: auto;
+    box-shadow: var(--shadow-md);
+}
+
+body.collapsed .sidebar {
+    width: var(--sidebar-width);
+}
+
+body.collapsed .sidebar span,
+body.collapsed .sidebar hr {
+    display: initial;
+}
+
+body.collapsed .sidebar a {
+    justify-content: flex-start;
+}
+
+.sidebar-brand {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 15px 18px 40px;
+    font-weight: 900;
+    font-size: 1.35rem;
+    color: var(--primary);
+    letter-spacing: -0.5px;
+    margin-bottom: 10px;
+}
+
+.sidebar-brand i {
+    font-size: 1.8rem;
+    background: linear-gradient(135deg, var(--primary), var(--accent));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.sidebar a {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 14px 18px;
+    color: var(--text-light);
+    text-decoration: none;
+    border-radius: 14px;
+    margin-bottom: 8px;
+    font-weight: 600;
+    font-size: 0.95rem;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+}
+
+.sidebar a::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 4px;
+    height: 100%;
+    background: var(--primary);
+    transform: scaleY(0);
+    transform-origin: top;
+    transition: transform 0.3s ease;
+}
+
+.sidebar a:hover {
+    background: rgba(99, 102, 241, 0.1);
+    color: var(--primary);
+    padding-left: 22px;
+}
+
+.sidebar a:hover::before {
+    transform: scaleY(1);
+}
+
+.sidebar a.active {
+    background: linear-gradient(135deg, rgba(99, 102, 241, 0.2), rgba(168, 85, 247, 0.1));
+    color: var(--primary);
+    font-weight: 700;
+}
+
+.sidebar a.active::before {
+    transform: scaleY(1);
+}
+
+.sidebar a i {
+    font-size: 1.2rem;
+    transition: transform 0.3s ease;
+}
+
+.sidebar a:hover i {
+    transform: scale(1.1);
+}
+
+.sidebar hr {
+    border-color: var(--glass-border);
+    margin: 20px 0;
+}
+
+.sidebar a.text-danger:hover {
+    background: rgba(239, 68, 68, 0.1);
+    color: var(--danger);
+}
+
+/* MAIN CONTENT */
+.main-content {
+    margin-left: var(--sidebar-width);
+    padding: 35px 40px;
+    transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    min-height: 100vh;
+}
+
+body.collapsed .main-content {
+    margin-left: var(--sidebar-collapsed);
+}
+
+/* TOPBAR */
+.topbar {
+    background: var(--card-bg);
+    backdrop-filter: blur(15px);
+    border: 1px solid var(--glass-border);
+    padding: 18px 28px;
+    border-radius: 18px;
+    margin-bottom: 35px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    box-shadow: var(--shadow-md);
+    transition: all 0.3s ease;
+}
+
+.topbar:hover {
+    box-shadow: var(--shadow-lg);
+}
+
+/* CARDS */
+.card {
+    background: var(--card-bg);
+    backdrop-filter: blur(15px);
+    border: 1px solid var(--glass-border);
+    border-radius: 20px;
+    box-shadow: var(--shadow-md);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.card:hover {
+    box-shadow: var(--shadow-lg);
+    transform: translateY(-5px);
+    border-color: rgba(99, 102, 241, 0.2);
+}
+
+.card-header {
+    background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(168, 85, 247, 0.05));
+    border-bottom: 1px solid var(--glass-border);
+    border-radius: 20px 20px 0 0;
+    padding: 20px 25px;
+    font-weight: 700;
+    color: var(--primary);
+}
+
+.card-body {
+    padding: 25px;
+}
+
+/* FORMS */
+.form-label {
+    font-weight: 600;
+    color: var(--text-main);
+    margin-bottom: 10px;
+    font-size: 0.95rem;
+}
+
+.form-control,
+.form-select {
+    background: var(--bg-alt);
+    border: 1.5px solid var(--glass-border);
+    border-radius: 12px;
+    padding: 12px 16px;
+    color: var(--text-main);
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+body.dark-mode .form-control,
+body.dark-mode .form-select {
+    background: rgba(15, 23, 42, 0.5);
+}
+
+.form-control:focus,
+.form-select:focus {
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+    background: var(--card-bg);
+}
+
+/* BUTTONS */
+.btn {
+    font-weight: 700;
+    border-radius: 12px;
+    padding: 12px 24px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    border: none;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, var(--primary), var(--accent));
+    color: white;
+    box-shadow: var(--shadow-md);
+}
+
+.btn-primary:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--shadow-lg);
+    color: white;
+}
+
+.btn-outline-primary {
+    border: 2px solid var(--primary);
+    color: var(--primary);
+}
+
+.btn-outline-primary:hover {
+    background: var(--primary);
+    color: white;
+}
+
+.btn-success {
+    background: linear-gradient(135deg, var(--success), #059669);
+    color: white;
+}
+
+.btn-danger {
+    background: linear-gradient(135deg, var(--danger), #dc2626);
+    color: white;
+}
+
+.btn-warning {
+    background: linear-gradient(135deg, var(--warning), #d97706);
+    color: white;
+}
+
+.btn-info {
+    background: linear-gradient(135deg, #06b6d4, #0ea5e9);
+    color: white;
+}
+
+/* HAMBURGER */
+.hamburger {
+    background: linear-gradient(135deg, var(--primary), var(--accent));
+    color: white;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: none;
+    font-size: 1.1rem;
+    box-shadow: var(--shadow-md);
+}
+
+.hamburger:hover {
+    transform: scale(1.05);
+    box-shadow: var(--shadow-lg);
+}
+
+/* USER PROFILE */
+.user-profile {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.avatar-box {
+    width: 45px;
+    height: 45px;
+    background: linear-gradient(135deg, var(--primary), var(--accent));
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 1.2rem;
+    box-shadow: var(--shadow-md);
+    transition: all 0.3s ease;
+}
+
+.avatar-box:hover {
+    transform: scale(1.05);
+}
+
+/* TABLES */
+.table {
+    color: var(--text-main);
+}
+
+.table thead {
+    background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(168, 85, 247, 0.05));
+    font-weight: 700;
+}
+
+.table thead th {
+    border-color: var(--glass-border);
+    color: var(--primary);
+    padding: 16px;
+}
+
+.table tbody tr {
+    border-color: var(--glass-border);
+    transition: all 0.2s ease;
+}
+
+.table tbody tr:hover {
+    background: rgba(99, 102, 241, 0.05);
+}
+
+.table tbody td {
+    padding: 14px 16px;
+    vertical-align: middle;
+}
+
+/* BADGES */
+.badge {
+    font-weight: 700;
+    padding: 8px 14px;
+    border-radius: 10px;
+    font-size: 0.85rem;
+}
+
+.badge.bg-success {
+    background: linear-gradient(135deg, var(--success), #059669) !important;
+}
+
+.badge.bg-danger {
+    background: linear-gradient(135deg, var(--danger), #dc2626) !important;
+}
+
+.badge.bg-warning {
+    background: linear-gradient(135deg, var(--warning), #d97706) !important;
+}
+
+/* ALERTS */
+.alert {
+    border-radius: 15px;
+    border: none;
+    padding: 16px 20px;
+    font-weight: 500;
+    backdrop-filter: blur(10px);
+}
+
+.alert-success {
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(5, 150, 105, 0.05));
+    color: var(--success);
+    border: 1px solid rgba(16, 185, 129, 0.2);
+}
+
+.alert-danger {
+    background: linear-gradient(135deg, rgba(239, 68, 68, 0.1), rgba(220, 38, 38, 0.05));
+    color: var(--danger);
+    border: 1px solid rgba(239, 68, 68, 0.2);
+}
+
+.alert-warning {
+    background: linear-gradient(135deg, rgba(245, 158, 11, 0.1), rgba(217, 119, 6, 0.05));
+    color: var(--warning);
+    border: 1px solid rgba(245, 158, 11, 0.2);
+}
+
+.alert-info {
+    background: linear-gradient(135deg, rgba(6, 182, 212, 0.1), rgba(14, 165, 233, 0.05));
+    color: #0ea5e9;
+    border: 1px solid rgba(6, 182, 212, 0.2);
+}
+
+/* RESPONSIVE */
+@media (max-width: 768px) {
+    .sidebar {
+        width: var(--sidebar-width);
+    }
+    
+    .sidebar span,
+    .sidebar hr {
+        display: initial;
+    }
+    
+    .main-content {
+        margin-left: var(--sidebar-width);
+        padding: 20px;
+    }
+    
+    .topbar {
+        flex-direction: column;
+        gap: 15px;
+        align-items: flex-start;
+    }
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="sidebar">
+    <div class="sidebar-brand">
+        <div class="brand-icon"><i class="fas fa-shield-halved"></i></div>
+        <span>VMS PRO</span>
+    </div>
+
+                    <a href="gate_security_dashboard.php" class="active" title="Gate Security Dashboard" aria-label="Gate Security Dashboard">
+            <i class="fas fa-shield-alt"></i><span>Gate Security Dashboard</span>
+        </a>
+        
+    
+    <hr style="border-color: var(--glass-border); margin: 20px 0;">
+
+    <a href="#" onclick="toggleDarkMode()" title="Dark Mode" aria-label="Dark Mode">
+        <i class="fas fa-moon"></i><span id="mode-text">Dark Mode</span>
+    </a>
+
+    <a href="change_password.php" class="" title="Change Password" aria-label="Change Password">
+        <i class="fas fa-key"></i><span>Change Password</span>
+    </a>
+
+    <a href="logout.php" class="text-danger mt-auto" title="Logout" aria-label="Logout">
+        <i class="fas fa-power-off"></i><span>Logout</span>
+    </a>
+</div>
+
+<div class="main-content">
+    <div class="topbar d-flex justify-content-between align-items-center animate__animated animate__fadeInDown">
+        <div class="d-flex align-items-center gap-3">
+            <div class="hamburger" onclick="toggleSidebar()">
+                <i class="fas fa-bars"></i>
+            </div>
+            <h5 class="fw-bold mb-0">Gate Security Dashboard</h5>
+        </div>
+        
+        <div class="user-profile d-flex align-items-center gap-3">
+            <div class="text-end d-none d-sm-block">
+                <p class="small text-muted mb-0">Welcome Security:</p>
+                <p class="fw-bold mb-0" style="font-size: 0.9rem;">ignas kayombo</p>
+            </div>
+            <div class="avatar-box" style="width: 40px; height: 40px; background: var(--primary); border-radius: 12px; display: flex; align-items: center; justify-content: center; color: white;">
+                <i class="fas fa-user"></i>
+            </div>
+        </div>
+    </div>
+
+    
+<script>
+// Logic zako za zamani zimebaki vile vile lakini zimeboreshwa kidogo
+function toggleSidebar() {
+    document.body.classList.toggle('collapsed');
+    localStorage.setItem('sidebarStatus', document.body.classList.contains('collapsed') ? 'collapsed' : 'expanded');
+}
+
+function toggleDarkMode() {
+    const isDark = document.body.classList.toggle('dark-mode');
+    localStorage.setItem('theme', isDark ? 'dark' : 'light');
+    updateModeText(isDark);
+}
+
+function updateModeText(isDark) {
+    const text = document.getElementById('mode-text');
+    const icon = document.querySelector('a[onclick="toggleDarkMode()"] i');
+    if(isDark) {
+        text.innerText = 'Light Mode';
+        icon.className = 'fas fa-sun';
     } else {
-        $error = 'Passcode si sahihi au haikujazwa.';
+        text.innerText = 'Dark Mode';
+        icon.className = 'fas fa-moon';
     }
 }
 
-if (isset($_GET['registered']) && $_GET['registered'] === '1') {
-    $registeredDept = trim($_GET['dept'] ?? '');
-    if ($registeredDept !== '') {
-        $message = 'Mgeni ameandikishwa kwa mafanikio kwenda idara ya ' . htmlspecialchars($registeredDept) . '. Taarifa imetumwa kwa mapokezi ya idara husika.';
-    } else {
-        $message = 'Mgeni ameandikishwa kwa mafanikio.';
+document.addEventListener('DOMContentLoaded', () => {
+    if (localStorage.getItem('theme') === 'dark') {
+        document.body.classList.add('dark-mode');
+        updateModeText(true);
     }
-}
-
-if (isset($_GET['checkedout']) && $_GET['checkedout'] === '1') {
-    $message = 'Mgeni ametolewa nje kwa mafanikio.';
-}
-
-if (isset($_GET['vehicle_deleted']) && $_GET['vehicle_deleted'] === '1') {
-    $message = 'Taarifa za gari zimefutwa kwa mafanikio.';
-}
-
-$vehicleView = 'today';
-if (isset($_GET['vehicle_view']) && in_array($_GET['vehicle_view'], ['today', 'inside', 'left'], true)) {
-    $vehicleView = $_GET['vehicle_view'];
-}
-
-$showVehicles = isset($_GET['show_vehicles']) && $_GET['show_vehicles'] == '1';
-
-// Handle delete vehicle information without removing the whole visitor record.
-if (isset($_GET['delete_vehicle_id'])) {
-    $deleteVehicleId = intval($_GET['delete_vehicle_id']);
-    if ($deleteVehicleId > 0) {
-        $deleteVehicleStmt = $conn->prepare("UPDATE visitors SET has_motor = 'No', motor_type = '', model_name = '', plate_number = '' WHERE id = ? AND has_motor = 'Yes'");
-        if ($deleteVehicleStmt) {
-            $deleteVehicleStmt->bind_param('i', $deleteVehicleId);
-            if ($deleteVehicleStmt->execute()) {
-                $deleteVehicleStmt->close();
-                $redirectVehicleView = in_array($_GET['vehicle_view'] ?? '', ['today', 'inside', 'left'], true) ? $_GET['vehicle_view'] : 'today';
-                header('Location: gate_security_dashboard.php?show_vehicles=1&vehicle_view=' . urlencode($redirectVehicleView) . '&vehicle_deleted=1');
-                exit();
-            }
-            $error = 'Tatizo wakati wa kufuta taarifa za gari: ' . $deleteVehicleStmt->error;
-            $deleteVehicleStmt->close();
-        } else {
-            $error = 'Imeshindikana kuandaa delete vehicle statement: ' . $conn->error;
-        }
-    }
-}
-
-// Handle checkout (move visitor from inside to left)
-if (isset($_GET['checkout_id'])) {
-    $checkoutId = intval($_GET['checkout_id']);
-    if ($checkoutId > 0) {
-        $checkOutTime = date('Y-m-d H:i:s');
-        $checkoutStmt = $conn->prepare("UPDATE visitors SET status = 'Left', check_out_time = ? WHERE id = ? AND status IN ('Inside', 'Checked In')");
-        if ($checkoutStmt) {
-            $checkoutStmt->bind_param('si', $checkOutTime, $checkoutId);
-            if ($checkoutStmt->execute()) {
-                $checkoutStmt->close();
-                if ($showVehicles) {
-                    header('Location: gate_security_dashboard.php?show_vehicles=1&vehicle_view=left&checkedout=1');
-                } else {
-                    $nextView = in_array($_GET['view'] ?? '', ['today', 'inside', 'left'], true) ? $_GET['view'] : 'left';
-                    header('Location: gate_security_dashboard.php?view=' . urlencode($nextView) . '&checkedout=1');
-                }
-                exit();
-            }
-            $error = 'Tatizo wakati wa kumtoa mgeni nje: ' . $checkoutStmt->error;
-            $checkoutStmt->close();
-        } else {
-            $error = 'Imeshindikana kuandaa checkout statement: ' . $conn->error;
-        }
-    }
-}
-
-// Load host and department data
-$departments = [];
-$allDepartments = getDepartments($conn, false);
-$activeDepartments = getDepartments($conn, true);
-$activeDepartmentMap = [];
-
-foreach ($activeDepartments as $dRow) {
-    $departments[] = $dRow['name'];
-    $activeDepartmentMap[strtolower(trim((string)$dRow['name']))] = (int)$dRow['id'];
-}
-
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['register_visitor'])) {
-    $full_name = $conn->real_escape_string(trim($_POST['full_name']));
-    $visitor_type = $conn->real_escape_string(trim($_POST['visitor_type'] ?? ''));
-    $phone_number = $conn->real_escape_string(trim($_POST['phone_number']));
-    $id_type = $conn->real_escape_string(trim($_POST['id_type']));
-    $id_number = $conn->real_escape_string(trim($_POST['id_number']));
-    $army_no = $conn->real_escape_string(trim($_POST['army_no'] ?? ''));
-    $army_rank = $conn->real_escape_string(trim($_POST['army_rank'] ?? ''));
-    $army_unit = $conn->real_escape_string(trim($_POST['army_unit'] ?? ''));
-    $department = $conn->real_escape_string(trim($_POST['department']));
-    $departmentId = $activeDepartmentMap[strtolower(trim($department))] ?? getDepartmentIdByName($conn, $department);
-    $host_id = null; // No staff/host selection - set to NULL for optional foreign key
-    $has_motor = isset($_POST['has_motor']) && $_POST['has_motor'] === 'Yes' ? 'Yes' : 'No';
-    $motor_type = $conn->real_escape_string(trim($_POST['motor_type'] ?? ''));
-    if ($motor_type !== '' && !in_array($motor_type, ['Kijeshi', 'Kiraia'], true)) {
-        $motor_type = '';
-    }
-    $model_name = $conn->real_escape_string(trim($_POST['model_name'] ?? ''));
-    $plate_number = $conn->real_escape_string(trim($_POST['plate_number'] ?? ''));
-
-    // Basic required fields
-    if (empty($full_name) || empty($visitor_type) || empty($phone_number) || empty($id_type) || empty($id_number) || empty($department)) {
-        $error = 'Tafadhali jaza taarifa zote muhimu za mgeni, kitambulisho, na idara.';
-    // Full name should contain letters and common separators only
-    } elseif (!preg_match('/^[A-Za-z]+(?:[\s\'\.-][A-Za-z]+)*$/', $full_name)) {
-        $error = 'Jina la mgeni liruhusu herufi tu (bila namba).';
-    // Phone must be digits and max 10
-    } elseif (!ctype_digit($phone_number) || strlen($phone_number) > 10) {
-        $error = 'Namba ya simu lazima iwe tarakimu na isizozidi 10.';
-    // ID number max length 20
-    } elseif (strlen($id_number) > 20) {
-        $error = 'Namba ya kitambulisho haizidi herufi/nombo 20.';
-    // If they have a vehicle, plate number required and vehicle type must be selected
-    } elseif ($has_motor === 'Yes' && (empty($plate_number) || empty($motor_type))) {
-        $error = 'Ikiwa kuna gari, weka namba ya gari na aina ya gari (Kijeshi au Kiraia).';
-    } elseif ($has_motor === 'Yes' && $motor_type === 'Kiraia' && empty($model_name)) {
-        $error = 'Andika aina ya gari kwa mgeni wa kiraia.';
-    } elseif ($visitor_type === 'Kijeshi' && (empty($army_no) || empty($army_rank) || empty($army_unit))) {
-        $error = 'Weka namba ya jeshi, cheo, na kikosi kwa wageni wa kijeshi.';
-    } elseif ($departmentId === null) {
-        $error = 'Idara uliyochagua haipo kwenye mfumo.';
-    } else {
-        $id_type_upper = strtoupper(trim($id_type));
-        $matchedById = null;
-
-        // Returning visitor check by ID type + ID number.
-        $idMatchStmt = $conn->prepare("SELECT id, full_name, phone_number FROM visitors WHERE UPPER(TRIM(id_type)) = UPPER(TRIM(?)) AND TRIM(id_number) = TRIM(?) ORDER BY id DESC LIMIT 1");
-        if ($idMatchStmt) {
-            $idMatchStmt->bind_param('ss', $id_type, $id_number);
-            $idMatchStmt->execute();
-            $idMatchResult = $idMatchStmt->get_result();
-            if ($idMatchResult && $idMatchResult->num_rows > 0) {
-                $matchedById = $idMatchResult->fetch_assoc();
-            }
-            $idMatchStmt->close();
-        }
-
-        if ($matchedById) {
-            $matchedPhone = trim((string)($matchedById['phone_number'] ?? ''));
-            if ($matchedPhone !== '' && $phone_number !== '' && $matchedPhone !== $phone_number) {
-                $error = 'Kitambulisho hiki tayari ni cha ' . htmlspecialchars($matchedById['full_name'] ?? 'mgeni mwingine') . '. Namba ya simu haiendani na mmiliki wake.';
-            }
-        }
-
-        if (empty($error) && !$matchedById) {
-            // Phone number must be unique for a new identity.
-            $dupPhoneStmt = $conn->prepare("SELECT id, full_name FROM visitors WHERE phone_number = ? LIMIT 1");
-            if ($dupPhoneStmt) {
-                $dupPhoneStmt->bind_param('s', $phone_number);
-                $dupPhoneStmt->execute();
-                $dupPhoneResult = $dupPhoneStmt->get_result();
-                if ($dupPhoneResult && $dupPhoneResult->num_rows > 0) {
-                    $existing = $dupPhoneResult->fetch_assoc();
-                    $error = 'Namba ya simu tayari imeshatumika na mgeni mwingine (' . htmlspecialchars($existing['full_name'] ?? 'hajulikani') . ').';
-                }
-                $dupPhoneStmt->close();
-            }
-        }
-
-        // NIDA number must be unique for all visitors with NIDA ID type.
-        if (empty($error) && !$matchedById && $id_type_upper === 'NIDA') {
-            $dupNidaStmt = $conn->prepare("SELECT id, full_name FROM visitors WHERE UPPER(TRIM(id_type)) = 'NIDA' AND TRIM(id_number) = TRIM(?) LIMIT 1");
-            if ($dupNidaStmt) {
-                $dupNidaStmt->bind_param('s', $id_number);
-                $dupNidaStmt->execute();
-                $dupNidaResult = $dupNidaStmt->get_result();
-                if ($dupNidaResult && $dupNidaResult->num_rows > 0) {
-                    $existing = $dupNidaResult->fetch_assoc();
-                    $error = 'Namba ya NIDA tayari imeshatumika na mgeni mwingine (' . htmlspecialchars($existing['full_name'] ?? 'hajulikani') . ').';
-                }
-                $dupNidaStmt->close();
-            }
-        }
-
-        if (!empty($error)) {
-            // Stop here and show error message above form.
-        } else {
-        $purpose = 'Reception registration';
-        $status = 'Inside';
-        $check_in_time = date('Y-m-d H:i:s');
-
-        $stmt = $conn->prepare("INSERT INTO visitors (
-            full_name,
-            visitor_type,
-            phone_number,
-            id_type,
-            id_number,
-            army_no,
-            army_rank,
-            army_unit,
-            host_id,
-            purpose,
-            has_motor,
-            motor_type,
-            model_name,
-            plate_number,
-            department,
-            department_id,
-            status,
-            check_in_time
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-
-        if ($stmt) {
-            $stmt->bind_param(
-                'ssssssssissssssiss',
-                $full_name,
-                $visitor_type,
-                $phone_number,
-                $id_type,
-                $id_number,
-                $army_no,
-                $army_rank,
-                $army_unit,
-                $host_id,
-                $purpose,
-                $has_motor,
-                $motor_type,
-                $model_name,
-                $plate_number,
-                $department,
-                $departmentId,
-                $status,
-                $check_in_time
-            );
-            if ($stmt->execute()) {
-                $visitor_id = $conn->insert_id;
-                
-                // Create notifications for receptionists in this department
-                createDepartmentNotification($conn, $visitor_id, $department, $full_name, $departmentId);
-                
-                header('Location: gate_security_dashboard.php?view=inside&registered=1&dept=' . urlencode($department));
-                exit();
-            } else {
-                $error = 'Tatizo wakati wa kuandika kwa database: ' . $stmt->error;
-            }
-            $stmt->close();
-        } else {
-            $error = 'Imeshindikana kuandaa statement: ' . $conn->error;
-        }
-        }
-    }
-}
-
-// Dashboard stats
-$today = date('Y-m-d');
-$stats = [
-    'total_today' => 0,
-    'inside' => 0,
-    'vehicles_today' => 0,
-    'checked_out_today' => 0,
-];
-
-$statQuery = $conn->query("SELECT
-        SUM(DATE(check_in_time) = '$today') AS total_today,
-        SUM(status IN ('Inside', 'Checked In')) AS inside,
-        SUM(DATE(check_in_time) = '$today' AND has_motor = 'Yes') AS vehicles_today,
-    SUM(status = 'Left' AND DATE(check_out_time) = '$today') AS checked_out_today
-    FROM visitors");
-if ($statQuery) {
-    $stats = $statQuery->fetch_assoc();
-}
-
-$search = '';
-if (isset($_GET['search'])) {
-    $search = trim($_GET['search']);
-}
-
-$searchName = '';
-if (isset($_GET['search_name'])) {
-    $searchName = trim($_GET['search_name']);
-    if ($searchName !== '') {
-        // If searching by name, override view to show search results
-    }
-}
-
-// Which view to show: 'today' or 'inside'
-$view = isset($_GET['view']) ? ($_GET['view'] === 'inside' ? 'inside' : ($_GET['view'] === 'left' ? 'left' : ($_GET['view'] === 'today' ? 'today' : 'none'))) : 'none';
-if ($forceViewInside) {
-    $view = 'inside';
-}
-
-$searchSql = '';
-if ($search !== '') {
-    $safeSearch = $conn->real_escape_string($search);
-    $searchSql = " AND (v.phone_number LIKE '%$safeSearch%' OR v.plate_number LIKE '%$safeSearch%')";
-}
-
-$searchNameSql = '';
-if ($searchName !== '') {
-    $safeName = $conn->real_escape_string($searchName);
-    $searchNameSql = " AND v.full_name LIKE '%$safeName%'";
-}
-
-$recentVisitors = [];
-$whereClause = '1=0';
-
-// If searching by name, show all matching visitors (not filtered by view)
-if ($searchName !== '') {
-    $whereClause = "1=1";
-    $searchSql = $searchNameSql;  // Use name search instead
-} elseif ($view === 'inside') {
-    $whereClause = "v.status IN ('Inside', 'Checked In')";
-} elseif ($view === 'today') {
-    $whereClause = "DATE(v.check_in_time) = '$today'";
-} elseif ($view === 'left') {
-    $whereClause = "v.status = 'Left' AND DATE(v.check_out_time) = '$today'";
-}
-$rs = $conn->query("SELECT v.*, v.department AS visitor_department
-    FROM visitors v
-    WHERE $whereClause $searchSql
-    ORDER BY v.id DESC
-    LIMIT 50");
-if ($rs) {
-    while ($row = $rs->fetch_assoc()) {
-        $recentVisitors[] = $row;
-    }
-}
-
-$vehicleVisitors = [];
-if ($showVehicles) {
-    if ($vehicleView === 'inside') {
-        $baseVehicleWhere = "v.status IN ('Inside', 'Checked In') AND v.has_motor = 'Yes'";
-    } elseif ($vehicleView === 'left') {
-        $baseVehicleWhere = "v.status = 'Left' AND DATE(v.check_out_time) = '$today' AND v.has_motor = 'Yes'";
-    } else {
-        $baseVehicleWhere = "DATE(v.check_in_time) = '$today' AND v.has_motor = 'Yes'";
-    }
-
-    if ($searchName !== '') {
-        $safeName = $conn->real_escape_string($searchName);
-        $vwhere = $baseVehicleWhere . " AND v.full_name LIKE '%$safeName%'";
-    } else {
-        $vwhere = $baseVehicleWhere;
-    }
-
-    $vrs = $conn->query("SELECT v.id, v.full_name, v.phone_number, v.plate_number, v.check_in_time, v.check_out_time, v.status, v.department AS visitor_department FROM visitors v WHERE $vwhere ORDER BY v.id DESC LIMIT 200");
-    if ($vrs) {
-        while ($r = $vrs->fetch_assoc()) {
-            $vehicleVisitors[] = $r;
-        }
-    }
-}
-
-include 'includes/header.php';
-?>
-
+    // Keep labels visible for all sidebar items.
+    localStorage.setItem('sidebarStatus', 'expanded');
+    document.body.classList.remove('collapsed');
+});
+</script>
 <style>
 /* PREMIUM DASHBOARD STYLING */
 
@@ -757,360 +977,148 @@ include 'includes/header.php';
     </div>
 
     <!-- NOTIFICATIONS SECTION -->
-    <?php 
-    if ($current_user_id > 0) {
-        $notifications = getUnreadNotifications($conn, $current_user_id, 5);
-        if (count($notifications) > 0): 
-    ?>
-    <div class="row mb-4 justify-content-center">
-        <div class="col-12 col-xl-10">
-            <div class="alert alert-info border-0 shadow-sm" role="alert">
-                <div class="d-flex justify-content-between align-items-center">
-                    <div>
-                        <h5 class="alert-heading mb-2"><i class="fas fa-bell me-2"></i>Taarifa za Wageni</h5>
-                        <p class="mb-0">Una <strong><?= count($notifications) ?></strong> taarifa mpya za wageni waliofika idara husika.</p>
-                    </div>
-                    <button type="button" class="btn-close" onclick="markAllNotificationsAsRead()" title="Weka zote kama zilizosomwa"></button>
-                </div>
-                <hr>
-                <div id="notificationsContainer" style="max-height: 300px; overflow-y: auto;">
-                    <?php foreach ($notifications as $notif): ?>
-                    <div class="notification-item p-2 mb-2 bg-light rounded d-flex justify-content-between align-items-center" id="notif-<?= $notif['id'] ?>">
-                        <div class="flex-grow-1">
-                            <div class="font-weight-bold"><?= htmlspecialchars($notif['visitor_name'] ?? 'Mgeni') ?></div>
-                            <small class="text-muted">Idara: <?= htmlspecialchars($notif['department'] ?? '') ?></small>
-                            <?php if (!empty($notif['message'])): ?>
-                                <br>
-                                <small><?= htmlspecialchars($notif['message']) ?></small>
-                            <?php endif; ?>
-                            <br>
-                            <small class="text-muted"><?= date('H:i, d M', strtotime($notif['created_at'])) ?></small>
-                        </div>
-                        <button type="button" class="btn btn-sm btn-close" onclick="deleteNotification(<?= $notif['id'] ?>)" title="Futa taarifa hii"></button>
-                    </div>
-                    <?php endforeach; ?>
-                </div>
-            </div>
-        </div>
-    </div>
-    <?php endif; 
-    } 
-    ?>
-    <!-- END NOTIFICATIONS SECTION -->
+        <!-- END NOTIFICATIONS SECTION -->
 
-    <div class="row g-4 justify-content-center">
-        <div class="col-12 col-xl-10">
-            <div class="registration-card shadow-lg p-4">
-                <h5><i class="fas fa-clipboard-list me-2"></i>Usajili wa Mapokezi</h5>
-                <?php if ($message): ?>
-                    <div class="alert alert-success"><i class="fas fa-check-circle me-2"></i><?= htmlspecialchars($message) ?></div>
-                <?php endif; ?>
-                <?php if ($error): ?>
-                    <div class="alert alert-danger"><i class="fas fa-exclamation-circle me-2"></i><?= htmlspecialchars($error) ?></div>
-                <?php endif; ?>
+   <?php
+   if(isset($_POST['register_visitor'])){
 
-                <form method="post" novalidate>
-                    <div class="mb-3">
-                        <label class="form-label">Aina ya Mgeni</label>
-                        <select name="visitor_type" id="visitorTypeSelect" class="form-select" required onchange="toggleMilitaryFields(this.value)">
-                            <option value="">Chagua</option>
-                            <option value="Kiraia" <?= (($_POST['visitor_type'] ?? '') === 'Kiraia') ? 'selected' : '' ?>>Mgeni wa Kiraia</option>
-                            <option value="Kijeshi" <?= (($_POST['visitor_type'] ?? '') === 'Kijeshi') ? 'selected' : '' ?>>Mgeni wa Kijeshi</option>
-                        </select>
-                    </div>
-                    <div id="militaryFields" style="display: <?= (($_POST['visitor_type'] ?? '') === 'Kijeshi') ? 'block' : 'none' ?>;">
-                        <div class="row g-3 mb-3">
-                            <div class="col-md-4">
-                                <label class="form-label">Army No</label>
-                                <input type="text" id="armyNoInput" name="army_no" class="form-control" value="<?= htmlspecialchars($_POST['army_no'] ?? '') ?>">
-                            </div>
-                            <div class="col-md-4">
-                                <label class="form-label">Rank</label>
-                                <input type="text" id="armyRankInput" name="army_rank" class="form-control" value="<?= htmlspecialchars($_POST['army_rank'] ?? '') ?>">
-                            </div>
-                            <div class="col-md-4">
-                                <label class="form-label">Kikosi</label>
-                                <input type="text" id="armyUnitInput" name="army_unit" class="form-control" value="<?= htmlspecialchars($_POST['army_unit'] ?? '') ?>">
-                            </div>
-                        </div>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Jina la Mgeni</label>
-                        <input type="text" id="fullNameInput" name="full_name" class="form-control" value="<?= htmlspecialchars($_POST['full_name'] ?? '') ?>" pattern="[A-Za-z]+([ '\\.-][A-Za-z]+)*" title="Jina litumie herufi tu bila namba" required>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Namba ya Simu</label>
-                        <input type="text" id="phoneNumberInput" name="phone_number" maxlength="10" pattern="[0-9]+" inputmode="numeric" class="form-control" value="<?= htmlspecialchars($_POST['phone_number'] ?? '') ?>" required>
-                        <div class="form-text">Nambari zisizozidi tarakimu 10.</div>
-                    </div>
-                    <div class="row g-3 mb-3">
-                        <div class="col-md-6">
-                            <label class="form-label">Aina ya Kitambulisho</label>
-                            <select id="idTypeSelect" name="id_type" class="form-select" required>
-                                <option value="">Chagua</option>
-                                <?php foreach (['Passport','NIDA','Driving License','Other'] as $type): ?>
-                                    <option value="<?= $type ?>" <?= (($_POST['id_type'] ?? '') === $type) ? 'selected' : '' ?>><?= $type ?></option>
-                                <?php endforeach; ?>
-                            </select>
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label">Namba ya Kitambulisho</label>
-                            <input type="text" id="idNumberInput" name="id_number" maxlength="20" class="form-control" value="<?= htmlspecialchars($_POST['id_number'] ?? '') ?>" required>
-                            <div class="form-text">Namba ya kitambulisho haizidi herufi/nombo 20.</div>
-                            <div id="visitorLookupStatus" class="form-text"></div>
-                        </div>
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label">Idara</label>
-                        <select id="departmentSelect" name="department" class="form-select" required>
-                            <option value="">Chagua idara</option>
-                            <?php foreach ($departments as $dept): ?>
-                                <option value="<?= htmlspecialchars($dept) ?>" <?= (($_POST['department'] ?? '') === $dept) ? 'selected' : '' ?>><?= htmlspecialchars($dept) ?></option>
-                            <?php endforeach; ?>
-                        </select>
-                    </div>
+    $visitor_type = $_POST['visitor_type'];
+    $full_name = trim($_POST['full_name']);
+    $phone_number = trim($_POST['phone_number']);
+    $id_type = $_POST['id_type'];
+    $id_number = trim($_POST['id_number']);
+    $department = $_POST['department'];
 
-                    <div class="mb-4">
-                        <label class="form-label d-block">Je, ameingia na gari?</label>
-                        <div class="form-check form-check-inline">
-                            <input class="form-check-input" type="radio" name="has_motor" id="hasMotorYes" value="Yes" <?= (($_POST['has_motor'] ?? 'No') === 'Yes') ? 'checked' : '' ?> onclick="toggleVehicleFields(true)">
-                            <label class="form-check-label" for="hasMotorYes">Ndiyo</label>
-                        </div>
-                        <div class="form-check form-check-inline">
-                            <input class="form-check-input" type="radio" name="has_motor" id="hasMotorNo" value="No" <?= (($_POST['has_motor'] ?? 'No') === 'Yes') ? '' : 'checked' ?> onclick="toggleVehicleFields(false)">
-                            <label class="form-check-label" for="hasMotorNo">Hapana</label>
-                        </div>
-                    </div>
+    $has_motor = $_POST['has_motor'] ?? "No";
+    $plate_number = $_POST['plate_number'] ?? "";
+    $motor_type = $_POST['motor_type'] ?? "";
+    $model_name = $_POST['model_name'] ?? "";
 
-                    <div id="vehicleFields" style="display: <?= (($_POST['has_motor'] ?? 'No') === 'Yes') ? 'block' : 'none' ?>;">
-                        <div class="mb-3">
-                            <label class="form-label">Namba ya gari</label>
-                            <input type="text" id="plateNumberInput" name="plate_number" class="form-control" value="<?= htmlspecialchars($_POST['plate_number'] ?? '') ?>" placeholder="Ingiza namba ya gari">
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Aina ya Gari</label>
-                            <select id="motorTypeSelect" name="motor_type" class="form-select" onchange="handleMotorTypeChange(this.value)">
-                                <option value="">Chagua aina</option>
-                                <option value="Kijeshi" <?= (($_POST['motor_type'] ?? '') === 'Kijeshi') ? 'selected' : '' ?>>Kijeshi</option>
-                                <option value="Kiraia" <?= (($_POST['motor_type'] ?? '') === 'Kiraia') ? 'selected' : '' ?>>Kiraia</option>
-                            </select>
-                        </div>
-                        <div id="civilianVehicleDetails" style="display: <?= (($_POST['motor_type'] ?? '') === 'Kiraia') ? 'block' : 'none' ?>;">
-                            <div class="mb-3">
-                                <label class="form-label">Aina ya gari la kiraia</label>
-                                <input type="text" id="modelNameInput" name="model_name" class="form-control" value="<?= htmlspecialchars($_POST['model_name'] ?? '') ?>" placeholder="Mfano: Toyota Land Cruiser">
-                            </div>
-                        </div>
-                    </div>
+    $army_no = $_POST['army_no'] ?? "";
+    $army_rank = $_POST['army_rank'] ?? "";
+    $army_unit = $_POST['army_unit'] ?? "";
 
-                    <button type="submit" name="register_visitor" value="1" class="btn btn-register w-100"><i class="fas fa-save me-2"></i>Weka Usajili</button>
-                </form>
-            </div>
+    //==================================================
+    // CHECK IF VISITOR IS ALREADY INSIDE
+    //==================================================
+
+    $check = $conn->prepare("
+        SELECT id
+        FROM visitors
+        WHERE id_type=?
+        AND id_number=?
+        AND checkout_time IS NULL
+        LIMIT 1
+    ");
+
+    $check->bind_param("ss",$id_type,$id_number);
+    $check->execute();
+
+    $result = $check->get_result();
+
+    if($result->num_rows > 0){
+
+        echo "<div class='alert alert-danger'>
+        Visitor tayari yupo ndani.
+        </div>";
+
+    }else{
+
+        $insert = $conn->prepare("
+        INSERT INTO visitors(
+
+            visitor_type,
+            full_name,
+            phone_number,
+            id_type,
+            id_number,
+            department,
+
+            has_motor,
+            plate_number,
+            motor_type,
+            model_name,
+
+            army_no,
+            army_rank,
+            army_unit,
+
+            checkin_time
+
+        )
+
+        VALUES(
+
+        ?,?,?,?,?,?,
+        ?,?,?,?,
+        ?,?,?,NOW()
+
+        )
+
+        ");
+
+        $insert->bind_param(
+
+            "sssssssssssss",
+
+            $visitor_type,
+            $full_name,
+            $phone_number,
+            $id_type,
+            $id_number,
+            $department,
+
+            $has_motor,
+            $plate_number,
+            $motor_type,
+            $model_name,
+
+            $army_no,
+            $army_rank,
+            $army_unit
+
+        );
+
+        if($insert->execute()){
+
+            echo "<div class='alert alert-success'>
+            Visitor registered successfully.
+            </div>";
+
+        }
+
+    }
+
+}
+   ?>
 
             <div class="registration-card shadow-lg p-4 mt-4">
                 <h5><i class="fas fa-eye me-2"></i>Chagua nini kuonyeshwa</h5>
                 <div class="d-grid gap-2 mb-4 view-buttons">
-                    <a href="?view=today" class="btn btn-outline-primary <?= ($view==='today') ? 'active' : '' ?>"><i class="fas fa-calendar-day me-2"></i>Wageni Waliosajiliwa Leo</a>
-                    <a href="?view=inside" class="btn btn-outline-success <?= ($view==='inside') ? 'active' : '' ?>"><i class="fas fa-sign-in-alt me-2"></i>Walioko Ndani</a>
-                    <a href="?view=left" class="btn btn-outline-danger <?= ($view==='left') ? 'active' : '' ?>"><i class="fas fa-sign-out-alt me-2"></i>Waliotoka Leo</a>
-                    <a href="?show_vehicles=1&vehicle_view=today" class="btn btn-outline-warning <?= ($showVehicles && $vehicleView==='today') ? 'active' : '' ?>"><i class="fas fa-car me-2"></i>Magari ya Leo</a>
-                    <a href="?show_vehicles=1&vehicle_view=inside" class="btn btn-outline-warning <?= ($showVehicles && $vehicleView==='inside') ? 'active' : '' ?>"><i class="fas fa-warehouse me-2"></i>Magari Yalioko Ndani</a>
-                    <a href="?show_vehicles=1&vehicle_view=left" class="btn btn-outline-warning <?= ($showVehicles && $vehicleView==='left') ? 'active' : '' ?>"><i class="fas fa-road me-2"></i>Magari Yaliyotoka Nje</a>
+                    <a href="?view=today" class="btn btn-outline-primary "><i class="fas fa-calendar-day me-2"></i>Wageni Waliosajiliwa Leo</a>
+                    <a href="?view=inside" class="btn btn-outline-success "><i class="fas fa-sign-in-alt me-2"></i>Walioko Ndani</a>
+                    <a href="?view=left" class="btn btn-outline-danger "><i class="fas fa-sign-out-alt me-2"></i>Waliotoka Leo</a>
+                    <a href="?show_vehicles=1&vehicle_view=today" class="btn btn-outline-warning "><i class="fas fa-car me-2"></i>Magari ya Leo</a>
+                    <a href="?show_vehicles=1&vehicle_view=inside" class="btn btn-outline-warning "><i class="fas fa-warehouse me-2"></i>Magari Yalioko Ndani</a>
+                    <a href="?show_vehicles=1&vehicle_view=left" class="btn btn-outline-warning "><i class="fas fa-road me-2"></i>Magari Yaliyotoka Nje</a>
                 </div>
 
                 <form method="get" class="d-flex gap-2 search-form">
-                    <input type="text" name="search_name" class="form-control flex-grow-1" placeholder="Tafuta mgeni kwa jina..." value="<?= htmlspecialchars($_GET['search_name'] ?? '') ?>">
+                    <input type="text" name="search_name" class="form-control flex-grow-1" placeholder="Tafuta mgeni kwa jina..." value="">
                     <button type="submit" class="btn btn-info"><i class="fas fa-search me-2"></i>Tafuta</button>
                 </form>
 
                 <div class="inline-display">
-                    <?php if ($showVehicles): ?>
-                        <!-- Show vehicles with tariffs -->
-                        <h6 class="mb-3">
-                            <?php
-                            if ($vehicleView === 'inside') {
-                                echo 'Magari Yalioko Ndani';
-                            } elseif ($vehicleView === 'left') {
-                                echo 'Magari Yaliyotoka Nje Leo';
-                            } else {
-                                echo 'Magari ya Leo';
-                            }
-                            ?>
-                        </h6>
-                        <?php if (count($vehicleVisitors) === 0): ?>
-                            <p class="text-muted">Hakuna taarifa za magari kwa mtazamo huu.</p>
-                        <?php else: ?>
-                            <div class="table-responsive">
-                                <table class="table table-sm">
-                                    <thead>
-                                        <tr>
-                                            <th>Jina</th>
-                                            <th>Simu</th>
-                                            <th>Idara</th>
-                                            <th>Namba ya Gari</th>
-                                            <th>Status</th>
-                                            <th>Time</th>
-                                            <th>Action</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <?php foreach ($vehicleVisitors as $vv): ?>
-                                            <tr>
-                                                <td><?= htmlspecialchars($vv['full_name']) ?></td>
-                                                <td><?= htmlspecialchars($vv['phone_number']) ?></td>
-                                                <td><?= htmlspecialchars($vv['visitor_department'] ?: '-') ?></td>
-                                                <td><?= htmlspecialchars($vv['plate_number'] ?: '-') ?></td>
-                                                <td>
-                                                    <?php if (in_array($vv['status'], ['Inside', 'Checked In'], true)): ?>
-                                                        <span class="badge bg-success">Ndani</span>
-                                                    <?php else: ?>
-                                                        <span class="badge bg-secondary">Ametoka</span>
-                                                    <?php endif; ?>
-                                                </td>
-                                                <td><?= date('H:i, d-m', strtotime($vv['check_in_time'])) ?></td>
-                                                <td class="d-flex gap-1 flex-wrap">
-                                                    <?php if (in_array($vv['status'], ['Inside', 'Checked In'], true)): ?>
-                                                        <a href="?checkout_id=<?= intval($vv['id']) ?>&show_vehicles=1&vehicle_view=inside" class="btn btn-sm btn-danger" onclick="return confirm('Una uhakika unataka kumtoa mgeni nje?')">Mtoa Nje</a>
-                                                    <?php endif; ?>
-                                                    <a href="?delete_vehicle_id=<?= intval($vv['id']) ?>&show_vehicles=1&vehicle_view=<?= urlencode($vehicleView) ?>" class="btn btn-sm btn-outline-danger" onclick="return confirm('Una uhakika unataka kufuta taarifa za gari hili?')">Toa Gari Nje</a>
-                                                </td>
-                                            </tr>
-                                        <?php endforeach; ?>
-                                    </tbody>
-                                </table>
-                            </div>
-                        <?php endif; ?>
-                    <?php elseif ($searchName !== ''): ?>
-                        <!-- Show search by name results -->
-                        <h6 class="mb-3">Matokeo ya Utafutaji: "<?= htmlspecialchars($searchName) ?>"</h6>
-                        <?php if (count($recentVisitors) === 0): ?>
-                            <p class="text-muted">Hakuna mgeni aliyefound kwa jina hili.</p>
-                        <?php else: ?>
-                            <div class="table-responsive">
-                                <table class="table table-sm">
-                                    <thead>
-                                        <tr>
-                                            <th>Jina</th>
-                                            <th>Simu</th>
-                                            <th>Idara</th>
-                                            <th>Gari</th>
-                                            <th>Check In</th>
-                                            <th>Check Out</th>
-                                            <th>Action</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <?php foreach ($recentVisitors as $v): ?>
-                                            <tr>
-                                                <td><?= htmlspecialchars($v['full_name']) ?></td>
-                                                <td><?= htmlspecialchars($v['phone_number']) ?></td>
-                                                <td><?= htmlspecialchars($v['visitor_department'] ?: '-') ?></td>
-                                                <td><?= htmlspecialchars($v['has_motor'] === 'Yes' ? ($v['plate_number'] ?: 'Ndiyo') : 'Hapana') ?></td>
-                                                <td><?= date('H:i, d-m', strtotime($v['check_in_time'])) ?></td>
-                                                <td><?= $v['check_out_time'] ? date('H:i, d-m', strtotime($v['check_out_time'])) : '-' ?></td>
-                                                <td>
-                                                    <?php if (in_array($v['status'], ['Inside', 'Checked In'], true)): ?>
-                                                        <a href="?checkout_id=<?= intval($v['id']) ?>&view=inside" class="btn btn-sm btn-danger" onclick="return confirm('Una uhakika unataka kumtoa mgeni nje?')">Mtoa Nje</a>
-                                                    <?php else: ?>
-                                                        <span class="badge bg-secondary">Ametoka</span>
-                                                    <?php endif; ?>
-                                                </td>
-                                            </tr>
-                                        <?php endforeach; ?>
-                                    </tbody>
-                                </table>
-                            </div>
-                        <?php endif; ?>
-                    <?php elseif ($view !== 'none'): ?>
-                        <!-- Show view-based results (today/inside/left) -->
-                        <h6 class="mb-3">
-                            <?php 
-                            if ($view === 'today') echo 'Wageni Waliosajiliwa Leo';
-                            elseif ($view === 'inside') echo 'Wageni Walioko Ndani';
-                            elseif ($view === 'left') echo 'Wageni Waliotoka Leo';
-                            ?>
-                        </h6>
-                        <?php if (count($recentVisitors) === 0): ?>
-                            <p class="text-muted">Hakuna mgeni wa mtazamo ulioteuliwa.</p>
-                        <?php else: ?>
-                            <div class="table-responsive">
-                                <table class="table table-sm">
-                                    <thead>
-                                        <tr>
-                                            <th>Jina</th>
-                                            <th>Simu</th>
-                                            <th>Idara</th>
-                                            <th>Gari</th>
-                                            <th>Check In</th>
-                                            <th>Check Out</th>
-                                            <th>Action</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <?php foreach ($recentVisitors as $v): ?>
-                                            <tr>
-                                                <td><?= htmlspecialchars($v['full_name']) ?></td>
-                                                <td><?= htmlspecialchars($v['phone_number']) ?></td>
-                                                <td><?= htmlspecialchars($v['visitor_department'] ?: '-') ?></td>
-                                                <td><?= htmlspecialchars($v['has_motor'] === 'Yes' ? ($v['plate_number'] ?: 'Ndiyo') : 'Hapana') ?></td>
-                                                <td><?= date('H:i, d-m', strtotime($v['check_in_time'])) ?></td>
-                                                <td><?= $v['check_out_time'] ? date('H:i, d-m', strtotime($v['check_out_time'])) : '-' ?></td>
-                                                <td>
-                                                    <?php if (in_array($v['status'], ['Inside', 'Checked In'], true)): ?>
-                                                        <a href="?checkout_id=<?= intval($v['id']) ?>&view=inside" class="btn btn-sm btn-danger" onclick="return confirm('Una uhakika unataka kumtoa mgeni nje?')">Mtoa Nje</a>
-                                                    <?php else: ?>
-                                                        <span class="badge bg-secondary">Ametoka</span>
-                                                    <?php endif; ?>
-                                                </td>
-                                            </tr>
-                                        <?php endforeach; ?>
-                                    </tbody>
-                                </table>
-                            </div>
-                        <?php endif; ?>
-                    <?php else: ?>
-                        <p class="text-muted">Chagua mtazamo kuonyesha wageni.</p>
-                    <?php endif; ?>
-                </div>
+                                            <p class="text-muted">Chagua mtazamo kuonyesha wageni.</p>
+                                    </div>
 
-                    <?php if ($view !== 'none' && $searchName === ''): ?>
-                    <div class="registration-card shadow-lg p-4 mt-4">
-                        <h5><i class="fas fa-chart-bar me-2"></i>Taarifa za mgeni leo</h5>
-                        <div class="row g-3">
-                            <div class="col-sm-6">
-                                <div class="stat-box">
-                                    <div class="text-uppercase text-muted small">Wageni leo</div>
-                                    <div class="fs-3"><?= intval($stats['total_today']) ?></div>
-                                </div>
-                            </div>
-                            <div class="col-sm-6">
-                                <div class="stat-box">
-                                    <div class="text-uppercase text-muted small">Walioko ndani</div>
-                                    <div class="fs-3"><?= intval($stats['inside']) ?></div>
-                                </div>
-                            </div>
-                            <div class="col-sm-6">
-                                <div class="stat-box">
-                                    <div class="text-uppercase text-muted small">Magari leo</div>
-                                    <div class="fs-3"><?= intval($stats['vehicles_today']) ?></div>
-                                </div>
-                            </div>
-                            <div class="col-sm-6">
-                                <div class="stat-box">
-                                    <div class="text-uppercase text-muted small">Waliotoka leo</div>
-                                    <div class="fs-3"><?= intval($stats['checked_out_today']) ?></div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <?php endif; ?>
-
+                    
         </div>
     </div>
 </div>
 
 <script>
-const csrfToken = '<?= htmlspecialchars($_SESSION['csrf_token'] ?? '', ENT_QUOTES, 'UTF-8') ?>';
+const csrfToken = '941906922831871543f97340f974f079fcb7a46624c5e52768946d039cf69065';
 
 function toggleVehicleFields(show) {
     document.getElementById('vehicleFields').style.display = show ? 'block' : 'none';
@@ -1359,35 +1367,7 @@ function markAllNotificationsAsRead() {
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
-        <?php if (!empty($_SESSION['show_vehicle'])): ?>
-            <?php if (count($vehicleVisitors) === 0): ?>
-                <p class="text-muted">Hakuna taarifa za magari kwa mtazamo huu.</p>
-            <?php else: ?>
-                <div class="table-responsive">
-                    <table class="table table-sm">
-                        <thead>
-                            <tr>
-                                <th>Jina</th>
-                                <th>Simu</th>
-                                <th>Namba ya Gari</th>
-                                <th>Time</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <?php foreach ($vehicleVisitors as $vv): ?>
-                                <tr>
-                                    <td><?= htmlspecialchars($vv['full_name']) ?></td>
-                                    <td><?= htmlspecialchars($vv['phone_number']) ?></td>
-                                    <td><?= htmlspecialchars($vv['plate_number'] ?: '-') ?></td>
-                                    <td><?= date('H:i, d-m', strtotime($vv['check_in_time'])) ?></td>
-                                </tr>
-                            <?php endforeach; ?>
-                        </tbody>
-                    </table>
-                </div>
-            <?php endif; ?>
-        <?php else: ?>
-            <form method="post" class="mb-0">
+                    <form method="post" class="mb-0">
                 <div class="mb-3">
                     <label class="form-label">Passcode</label>
                     <input type="password" name="vehicle_pass" class="form-control" required>
@@ -1395,8 +1375,7 @@ function markAllNotificationsAsRead() {
                 <button type="submit" name="vehicle_pass_submit" class="btn btn-primary">Wangia</button>
             </form>
             <p class="small text-muted mt-3">Tafadhali ingiza passcode ili kuona namba za gari.</p>
-        <?php endif; ?>
-      </div>
+              </div>
     </div>
   </div>
 </div>
